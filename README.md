@@ -33,5 +33,4 @@ Desenvolver uma solução open-source para automatizar o processo de pesagem rod
 - Dashboard operacional
 
 ## Licença
-
-MIT
+ [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

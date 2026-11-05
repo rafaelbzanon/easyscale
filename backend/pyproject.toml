@@ -1,0 +1,62 @@
+# Projeto do backend — spec specs/features/001-esqueleto-backend/spec.md.
+# Ferramentas: ADR-0003. Python mínimo: 3.12 (P-2, spec 001 §11).
+# Sem build backend (Q-B1): o pacote não é instalado; pytest e mypy o
+# encontram por `pythonpath`/`mypy_path`.
+
+[project]
+name = "pesagem"
+version = "0.1.0"
+description = "Backend do sistema de automação de pesagem rodoviária com LPR (TCC — IFRS Veranópolis)"
+requires-python = ">=3.12"
+# Nenhuma dependência de execução no esqueleto (spec 001 §3, CA-007).
+dependencies = []
+
+[dependency-groups]
+# Versões fixadas: as instaladas e verificadas na BE-102; escolhidas como a
+# estável mais recente publicada há pelo menos 14 dias (spec 001 §8).
+dev = [
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "ruff==0.17.0",
+    "mypy==2.4.0",
+]
+# LPR (spec 005; aprovadas pelo autor em 2026-10-30, BE-402). Mesmo critério
+# de versão. OpenCV 4.x e não 5.0: o EasyOCR 1.7.2 (2024) não foi testado com
+# a 5.0. torch/torchvision na versão só para CPU (D-09): instalar antes, pelo
+# índice https://download.pytorch.org/whl/cpu (`AMBIENTE.md` §6.1).
+lpr = [
+    "opencv-python-headless==4.14.0.94",
+    "easyocr==1.7.2",
+    "torch==2.14.1",
+    "torchvision==0.29.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+# A avaliação do LPR (spec 005, P-8) usa o EasyOCR e o acervo real: fica fora
+# da execução padrão e roda só com `pytest -m avaliacao`.
+addopts = ["--strict-markers", "-m", "not avaliacao"]
+markers = ["avaliacao: avaliação do LPR com o acervo real (spec 005 §6.4)"]
+
+[tool.coverage.run]
+source = ["src/pesagem"]
+branch = true
+
+[tool.coverage.report]
+# Sem meta mínima (ADR-0003, P-3): `fail_under` não é configurado.
+show_missing = true
+
+[tool.ruff]
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# Padrão (E4, E7, E9, F) + I (imports), B (bugbear), UP (sintaxe da versão mínima).
+select = ["E4", "E7", "E9", "F", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+files = ["src", "tests"]

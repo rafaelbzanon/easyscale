@@ -24,7 +24,17 @@ Desenvolver uma solução open-source para automatizar o processo de pesagem rod
 ### Infraestrutura
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 
-## Funcionalidades
+## Estado do projeto
+
+Protótipo em desenvolvimento (TCC — IFRS, Veranópolis). **Ainda não há aplicação para executar.**
+
+- **Pronto:** regras de domínio, camada de dispositivos com simuladores e pipeline de LPR, em `backend/`, com testes automatizados.
+- **Em definição:** contratos da API, em `specs/features/`.
+- **A fazer:** banco de dados, orquestração, API, frontend e Docker.
+
+Nada foi validado com balança, cancela ou câmera reais. O andamento fica em [`specs/tarefas-iniciais.md`](specs/tarefas-iniciais.md).
+
+## Funcionalidades previstas
 
 - Cadastro de veículos
 - Controle de pesagens

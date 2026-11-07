@@ -161,9 +161,9 @@ describe("CA-001, CA-003, CA-004: lista", () => {
       "João Lima",
       "Soja em grão",
       "Finalizada",
-      "15.000,500 kg",
-      "42.000,250 kg",
-      "26.999,750 kg",
+      "15.000,5 kg",
+      "42.000,25 kg",
+      "26.999,75 kg",
       "Com movimentação",
       "Carga",
     ]) {
@@ -175,7 +175,7 @@ describe("CA-001, CA-003, CA-004: lista", () => {
     expect(screen.getByText("Página 1 de 1 · 3 pesagens")).toBeInTheDocument();
 
     const semMov = screen.getByText("XYZ9876").closest("tr") as HTMLElement;
-    expect(within(semMov).getByText("12,000 kg")).toBeInTheDocument(); // nunca zero (RN-006)
+    expect(within(semMov).getByText("12 kg")).toBeInTheDocument(); // nunca zero (RN-006)
     expect(within(semMov).getByText("Sem movimentação")).toBeInTheDocument();
 
     const interv = screen.getByText("QQQ0000").closest("tr") as HTMLElement;
@@ -283,7 +283,7 @@ describe("CA-005 a CA-009: eventos", () => {
     const { f, painel } = await abrirEventos();
     expect(
       within(painel).getByText(
-        /Peso: 9.000,000 kg · líquido −6.000,500 kg \(Negativo fora da tolerância\)/,
+        /Peso: 9.000 kg · líquido −6.000,5 kg \(Negativo fora da tolerância\)/,
       ),
     ).toBeInTheDocument();
     expect(within(painel).getByText(/Imagem da decisão nº 12/)).toBeInTheDocument();

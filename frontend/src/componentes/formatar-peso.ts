@@ -1,7 +1,8 @@
-/** "15000.125" → "15.000,125 kg", sem passar por número (texto preserva as casas, spec 007 §3.1). */
+/** "15000.125" → "15.000,125 kg"; "15000.000" → "15.000 kg". Sem passar por número (texto preserva as casas, spec 007 §3.1); só os zeros à direita somem. */
 export function formatarPeso(texto: string): string {
   const negativo = texto.startsWith("-");
-  const [inteiro = "0", decimal = ""] = (negativo ? texto.slice(1) : texto).split(".");
+  const [inteiro = "0", casas = ""] = (negativo ? texto.slice(1) : texto).split(".");
+  const decimal = casas.replace(/0+$/, "");
   const agrupado = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   return `${negativo ? "−" : ""}${agrupado}${decimal ? `,${decimal}` : ""} kg`;
 }

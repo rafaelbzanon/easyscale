@@ -34,7 +34,7 @@ Este arquivo define **como nomear** e **onde colocar** cada coisa no repositóri
 
 > Nada abaixo existe até ser criado em uma tarefa ligada a spec aprovada (`AGENTS.md` §5). **Não crie pastas vazias "para o futuro"**: crie cada pasta na tarefa que precisar dela.
 >
-> **Já existem (2026-11-04):** os documentos da raiz, `specs/`, `docs/decisoes/`, `docs/artigo/`, `docs/modelo-dados/` e, em `backend/`, `pyproject.toml`, `src/pesagem/dominio/` (sem `autorizacao/`), `src/pesagem/lpr/`, `src/pesagem/dispositivos/` (sem `serial.py` e `protocolos/`), `tests/unitarios/` e `tests/avaliacao/`.
+> **Já existem (2026-11-04):** os documentos da raiz, `specs/`, `docs/decisoes/`, `docs/artigo/`, `docs/modelo-dados/` e, em `backend/`, `pyproject.toml`, `src/pesagem/dominio/` (sem `autorizacao/`), `src/pesagem/lpr/`, `src/pesagem/dispositivos/` (sem `serial.py` e `protocolos/`), `tests/unitarios/` e `tests/avaliacao/`. Desde 2026-11-07: `src/pesagem/config.py`, `src/pesagem/persistencia/` e `tests/integracao/` (spec 014).
 
 ```
 /
@@ -76,14 +76,26 @@ Este arquivo define **como nomear** e **onde colocar** cada coisa no repositóri
 │   │       ├── api/               # borda HTTP (sem regra de negócio)
 │   │       │   ├── rotas/         # um arquivo por recurso: agendamentos.py, pesagens.py
 │   │       │   ├── esquemas/      # modelos de entrada/saída da API (Pydantic)
-│   │       │   └── dependencias.py
+│   │       │   ├── dependencias.py
+│   │       │   ├── erros.py           # corpo de erro da spec 007 §3.2
+│   │       │   ├── cadastros.py       # construtor comum das rotas de cadastro (spec 007)
+│   │       │   ├── validacao.py       # CPF, CNPJ e placa digitada (spec 007 §6.1)
+│   │       │   ├── senha.py           # scrypt (ADR-0004)
+│   │       │   ├── criar_administrador.py  # comando do primeiro administrador
+│   │       │   └── esquemas/, rotas/      # um arquivo por recurso (comum, usuarios, pesagens, ...)
 │   │       ├── dominio/           # regras de negócio puras (sem I/O)
 │   │       │   ├── operacao/      # máquina de estados, transições
 │   │       │   ├── pesagem/       # cálculo de peso líquido, aceitação de peso
 │   │       │   ├── placa/         # normalizacao.py, selecao.py (specs 003 e 005)
-│   │       │   ├── autorizacao/   # decisão de autorizar entrada
+│   │       │   ├── autorizacao/   # decisao.py: decisão de autorizar a entrada e a volta (spec 015)
 │   │       │   └── erros.py
-│   │       ├── orquestracao/      # coordena domínio + LPR + dispositivos + persistência
+│   │       ├── orquestracao/      # coordena domínio + LPR + dispositivos + persistência (spec 015)
+│   │       │   ├── configuracao.py
+│   │       │   ├── erros.py
+│   │       │   ├── repositorios.py
+│   │       │   ├── eventos.py         # distribuidor de eventos em memória (ADR-0005)
+│   │       │   ├── operacao.py
+│   │       │   └── simuladores.py     # controle dos simuladores, só em SIMULADO
 │   │       ├── lpr/               # visão computacional (OpenCV + EasyOCR)
 │   │       │   ├── fontes/        # interface.py, pasta_imagens.py; futuras: camera_rede.py, camera_local.py, arquivo_video.py (Q-06)
 │   │       │   ├── erros.py
@@ -93,6 +105,9 @@ Este arquivo define **como nomear** e **onde colocar** cada coisa no repositóri
 │   │       │   ├── leitor_placa.py      # fronteira do OCR (interface)
 │   │       │   ├── leitor_easyocr.py    # implementação concreta
 │   │       │   ├── leitor_simulado.py   # para testar o pipeline sem o EasyOCR
+│   │       │   ├── reconhecedor_simulado.py  # chegada de placa simulada (spec 015)
+│   │       │   ├── codificacao.py       # JPEG das imagens das decisões (OpenCV, P-6)
+│   │       │   ├── posicao/             # interface.py, simulada.py; real bloqueada (Q-06, Q-17)
 │   │       │   ├── baixar_modelos.py    # download explícito dos modelos (D-08)
 │   │       │   └── resultado.py
 │   │       ├── dispositivos/      # balança e cancelas (PySerial + simuladores)
@@ -109,16 +124,17 @@ Este arquivo define **como nomear** e **onde colocar** cada coisa no repositóri
 │   │       │       ├── tentativas.py
 │   │       │       ├── simulada.py
 │   │       │       └── serial.py        # bloqueado até a Q-01
-│   │       └── persistencia/      # acesso ao banco; ORM [PENDENTE] D-02
-│   │           └── repositorios/  # um arquivo por agregado: agendamento.py, pesagem.py
+│   │       └── persistencia/      # SQLAlchemy Core + psycopg 3 (ADR-0006)
+│   │           ├── migracoes/     # Alembic: env.py e versions/NNNN_descricao.py (ADR-0006)
+│   │           └── repositorios/  # um arquivo por agregado: agendamento, pesagem, cadastro, faixa_horario, usuario, acesso, ...
 │   └── tests/
 │       ├── unitarios/             # espelha src/pesagem/
-│       ├── integracao/
+│       ├── integracao/        # persistencia/: PostgreSQL real em contêiner (spec 014)
 │       ├── ponta_a_ponta/
 │       ├── avaliacao/             # avaliação do LPR com o acervo (marcador `avaliacao`, spec 005 §6.4)
 │       └── conftest.py            # só se houver fixture compartilhada (pytest, ADR-0003)
 │
-├── frontend/                      # TypeScript + Tailwind; framework [PENDENTE] D-03
+├── frontend/                      # React + Vite + Tailwind (ADR-0007)
 │   ├── Dockerfile
 │   └── src/
 │       ├── paginas/               # cadastros, agendamentos, operacao, historico, diagnostico
@@ -143,13 +159,13 @@ Este arquivo define **como nomear** e **onde colocar** cada coisa no repositóri
 | P-1 | **Pastas de primeiro nível e de documentação**: `kebab-case` (`dados-teste`, `modelo-dados`). |
 | P-2 | **Pastas dentro de pacotes Python**: `snake_case` (obrigatório para import). Ex.: `ponta_a_ponta`. |
 | P-3 | **Pastas do frontend**: `kebab-case`. |
-| P-4 | **Regra de dependência no backend** (direção permitida das importações):<br>`api` → `orquestracao` → `dominio`<br>`orquestracao` → `lpr`, `dispositivos`, `persistencia`<br>`dominio` **não importa** `api`, `lpr`, `dispositivos`, `persistencia`, `fastapi`, `serial`, `cv2` nem `easyocr`.<br>`dispositivos` e `lpr` **não importam** `dominio`: têm tipos próprios, e a `orquestracao` converte (specs 004 P-6 e 005 §5.3). |
+| P-4 | **Regra de dependência no backend** (direção permitida das importações):<br>`api` → `orquestracao` → `dominio`<br>`orquestracao` → `lpr`, `dispositivos`, `persistencia`<br>`dominio` **não importa** `api`, `lpr`, `dispositivos`, `persistencia`, `fastapi`, `serial`, `cv2` nem `easyocr`.<br>`persistencia` → `dominio` (só tipos: `Operacao` e eventos; spec 014).<br>`dispositivos` e `lpr` **não importam** `dominio`: têm tipos próprios, e a `orquestracao` converte (specs 004 P-6 e 005 §5.3). |
 | P-5 | **`dominio/` não faz I/O** (nem HTTP, serial, câmera, banco, relógio direto). Recebe dados e dependências injetadas. |
-| P-6 | **Só `dispositivos/` importa `serial`**; só `lpr/` importa `cv2` e `easyocr`. Qualquer outro lugar que precise disso está na camada errada. |
+| P-6 | **Só `dispositivos/` importa `serial`**; só `lpr/` importa `cv2` e `easyocr`; só `persistencia/` importa `sqlalchemy`, `psycopg` e `alembic` (spec 014 CA-017). Qualquer outro lugar que precise disso está na camada errada. |
 | P-7 | **`tests/unitarios/` espelha `src/pesagem/`**: o teste de `dominio/placa/normalizacao.py` fica em `tests/unitarios/dominio/placa/test_normalizacao.py`. |
 | P-8 | **Simulador usado em testes automatizados** vive em `dispositivos/<equipamento>/simulada.py`. A pasta `simuladores/` raiz é só para simuladores executados como processo/serviço separado, se aprovados. |
 | P-9 | **Arquivos grandes** (imagens, vídeos, modelos do EasyOCR) **não** entram em `src/` nem na imagem Docker. Modelos ficam numa pasta configurada, baixados só pelo comando explícito (D-08). O acervo de imagens reais e o seu `gabarito.csv` contêm placas e **nunca** entram no Git (spec 005 §12.1, Q-09). |
-| P-10 | O `docs/modelo-dados/schema.sql` é **referência** até existir ferramenta de migração (D-02). Não duplicar o esquema em outro lugar. |
+| P-10 | O esquema vigente são as migrações em `persistencia/migracoes/` (ADR-0006); o `docs/modelo-dados/schema.sql` é histórico e não é mais atualizado. Não duplicar o esquema em outro lugar. |
 
 ---
 
@@ -260,7 +276,8 @@ Segue o padrão já usado no `docs/modelo-dados/schema.sql`. Banco: PostgreSQL (
 | Constraint CHECK | `ck_<tabela>_<regra>` | `ck_pesagem_situacao` |
 | Índice único | `ux_<tabela>_<descricao>` | `ux_pesagem_veiculo_aberta` |
 | Índice comum | `ix_<tabela>_<colunas>` | `ix_pesagem_criado_em` |
-| Migrations | ferramenta **[PENDENTE]** D-02; quando existir: `NNNN_descricao_snake.<ext>` | `0001_cria_tabelas_iniciais` |
+| Migrations | Alembic (ADR-0006), SQL escrito à mão: `NNNN_descricao_snake.py` em `persistencia/migracoes/versions/` | `0001_cria_tabelas_iniciais.py` |
+| Restrição EXCLUDE | `ex_<tabela>_<descricao>` | `ex_faixa_horario_sobreposta` |
 
 ---
 
@@ -269,7 +286,7 @@ Segue o padrão já usado no `docs/modelo-dados/schema.sql`. Banco: PostgreSQL (
 ### 7.1 Variáveis de ambiente
 
 - Formato: **`PESAGEM_<GRUPO>_<NOME>`**, `UPPER_SNAKE_CASE`, com unidade quando houver.
-- Grupos: `GERAL`, `PATIO`, `BANCO`, `CAMERA`, `LPR`, `BALANCA`, `CANCELA`, `SEGURANCA`, `TEMPO_REAL`, `RETENCAO` (seguem a tabela do `AMBIENTE.md` §8).
+- Grupos: `GERAL`, `PATIO`, `BANCO`, `CAMERA`, `LPR`, `BALANCA`, `CANCELA`, `SEGURANCA`, `TEMPO_REAL`, `OPERACAO` (tempos-limite das etapas, spec 015), `PESAGEM` (regras de peso, spec 002), `RETENCAO` (seguem a tabela do `AMBIENTE.md` §8).
 - Exemplos de **formato** (não são contrato; nomes reais são definidos na spec): `PESAGEM_BALANCA_MODO`, `PESAGEM_BALANCA_TIMEOUT_MS`, `PESAGEM_LPR_LIMIAR_CONFIANCA`.
 - Modo de equipamento: valores `SIMULADO` | `REAL`, com `SIMULADO` como padrão seguro.
 - Todas listadas em `.env.exemplo` sem valores secretos. `.env` nunca é versionado.
@@ -290,17 +307,21 @@ Nenhum arquivo Docker é criado antes de spec/plano aprovados (`AMBIENTE.md` §7
 
 ## 8. Frontend — TypeScript
 
-Framework **[PENDENTE]** (D-03). Se o framework escolhido impuser convenção própria (ex.: nomes de arquivos de rota), **ela prevalece** e esta seção deve ser atualizada no mesmo ADR.
+Framework: React + Vite + React Router, com Tailwind CSS v4 e TypeScript estrito (D-03, ADR-0007). Ferramentas: ADR-0008. Onde o React ou as ferramentas impõem um nome, ele prevalece (G-2).
 
 | Elemento | Padrão | Exemplo |
 |---|---|---|
 | Arquivo comum | `kebab-case.ts` | `cliente-api.ts`, `formatar-peso.ts` |
-| Arquivo de componente | `PascalCase` com a extensão do framework | `PainelOperacao.*`, `VisorRoi.*` |
+| Arquivo de componente | `PascalCase.tsx` | `PainelOperacao.tsx`, `VisorRoi.tsx` |
+| Arquivo de página | `PascalCase.tsx` em `src/paginas/`, com prefixo `Pagina` | `PaginaLogin.tsx` |
+| Hook | `use` + nome em português, `camelCase` (o prefixo `use` é exigido pelo React e pelo lint) | `useSessao`, `useConexaoEventos` |
 | Variável, função | `camelCase` | `pesoLiquido`, `carregarAgendamentos()` |
 | Tipo, interface, componente | `PascalCase` | `Pesagem`, `ResultadoLeitura` |
 | Constante de módulo | `UPPER_SNAKE_CASE` | `INTERVALO_ATUALIZACAO_MS` |
 | Tipos que espelham a API | campos em `snake_case` **iguais ao JSON** (não converter) | `pesagem.peso_liquido_kg` |
 | Textos de interface | português com acentos | "Aguardando identificação" |
+| Arquivos de configuração | nome exigido pela ferramenta, na raiz de `frontend/` | `vite.config.ts`, `eslint.config.js`, `tsconfig.json` |
+| Ponto de entrada | `src/main.tsx` (convenção do Vite) | — |
 
 Converter `snake_case` ↔ `camelCase` na borda é proibido sem decisão: gera divergência entre API, banco e tela.
 
@@ -316,7 +337,7 @@ Ferramenta: **pytest** (ADR-0003, D-11 do backend). Padrão de nomes:
 | Marcador `avaliacao` | teste que usa o EasyOCR real e o acervo; fora da execução padrão, roda com `pytest -m avaliacao` | `test_avalia_conjunto_de_referencia` |
 | Função de teste | `test_<comportamento>_<condicao>` | `test_nao_autoriza_quando_confianca_abaixo_do_limiar` |
 | Rastreabilidade | docstring ou marcador citando os IDs | `"""CA-003, RF-007"""` |
-| Arquivo (frontend) | `<arquivo>.test.ts` | `formatar-peso.test.ts` |
+| Arquivo (frontend) | `<arquivo>.test.ts` ou `<arquivo>.test.tsx`, ao lado do arquivo testado (ADR-0008) | `formatar-peso.test.ts` |
 | Dados de teste de imagem | sequencial, sem placa no nome; resultado esperado só no gabarito (fora do repositório); imagens dos testes automáticos são sintéticas, geradas pelo próprio teste | `img-0001.jpg` → linha no `gabarito.csv` |
 | Quadros seriais de exemplo | `<equipamento>-<situacao>-NN.<ext>` em `docs/equipamentos/` ou fixtures | `balanca-estavel-01.txt` |
 
@@ -345,6 +366,8 @@ Use **exatamente** estes termos em identificadores. Novos termos entram aqui e e
 | Versão da operação (concorrência) | `versao` | `revision` |
 | Ação pedida pela máquina de estados | `acao_pedida` | `side_effect` |
 | Sessão de usuário | `sessao` | `session` |
+| Usuário do sistema | `usuario` | `user` |
+| Perfil de acesso | `perfil` | `role` |
 | Permissão de acesso | `permissao` | `role`, `grant` |
 | Agendamento pelo motorista, sem login | `autoatendimento` | `self_service`, `kiosk` |
 | Código da nota informado na descarga | `codigo_nota` | `chave`, `nf` |
@@ -366,6 +389,18 @@ Use **exatamente** estes termos em identificadores. Novos termos entram aqui e e
 | Conjunto real de imagens de avaliação (fora do repositório) | `acervo` | `dataset` |
 | Arquivo com o resultado esperado de cada imagem | `gabarito` | `ground_truth` |
 | Região de interesse | `roi` | `regiao` |
+| Resultado da decisão de entrada | `decisao` (`AUTORIZADA`, `RETORNO_ACEITO`, `NAO_AUTORIZADA`) | `resultado_autorizacao` |
+| Motivo de não autorizar | `MotivoNaoAutorizacao` / `motivo` | `causa` |
+| Fonte e leitura de posição na balança | `FontePosicao`, `LeituraPosicao`, `CenarioPosicao` | `sensor_posicao` |
+| Pesagem cancelada com caminhão ainda na balança | `aguarda_liberacao_balanca` | `pendente_saida` |
+| Instante em que a operação entrou na situação atual | `situacao_desde` | `entrou_em` |
+| Liberação de caminhão de operação cancelada na balança | `liberacao_caminhao` | `saida_forcada` |
+| Ações manuais que a situação atual permite (para a tela) | `acoes_disponiveis` | `allowed_actions` |
+| Estado consolidado dos dispositivos (para a tela) | `EstadoDispositivos` | `status_hardware` |
+| Imagem atual de uma câmera (diagnóstico, sem gravar) | `imagem_atual` | `frame_ao_vivo` |
+| Registro de histórico da operação (transições, comandos, intervenções) | `evento_operacao` | `log_operacao` |
+| Tentativa de login ou de autoatendimento (limite) | `tentativa_acesso` | `rate_limit` |
+| Imagem salva de uma decisão (RN-022) | `imagem_decisao` | `foto`, `snapshot` |
 | Balança / cancela / câmera | `balanca` / `cancela` / `camera` | `scale`, `gate` |
 | Ponto de controle | `ponto_controle` | `estacao` |
 | Liberação manual | `liberacao_manual` | `override` |
@@ -381,7 +416,7 @@ Use **exatamente** estes termos em identificadores. Novos termos entram aqui e e
 1. **Antes de criar qualquer arquivo ou pasta**, localize o lugar dele na seção 2. Se não houver lugar previsto, **pare e pergunte**; não crie pasta nova nem arquivo "genérico".
 2. **Antes de nomear** um conceito do domínio, consulte o glossário (§10). Se o termo não existe, proponha-o ao autor e registre em `specs/glossario.md` e aqui, na mesma mudança.
 3. **Respeite as regras de dependência** (P-4 a P-6). Se uma tarefa parecer exigir importar `serial`, `cv2` ou `easyocr` fora da camada certa, a tarefa está mal desenhada: pergunte.
-4. **Itens [PENDENTE] não são resolvidos por convenção de nome.** Ex.: não crie `/api/v1`, `migrations/`, `alembic/`, nem arquivos de framework de frontend antes da decisão correspondente.
+4. **Itens [PENDENTE] não são resolvidos por convenção de nome.** Ex.: não crie `/api/v1` nem arquivos de framework de frontend antes da decisão correspondente.
 5. **Não renomeie** arquivos, tabelas, colunas, rotas ou variáveis existentes para "adequar ao padrão" sem pedido explícito; liste as divergências no relato e proponha a correção.
 6. **Divergência entre este arquivo e o repositório**: avise o autor e proponha atualizar um dos dois; não ajuste silenciosamente.
 7. **Ao concluir uma tarefa**, inclua no relato (`AGENTS.md` §11) uma linha "Convenções": confirmado que os nomes seguem este arquivo, ou quais exceções foram feitas e por quê.

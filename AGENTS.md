@@ -24,7 +24,7 @@ Regra: nunca promova uma **[PROPOSTA]** a **[DEFINIDO]** por conta própria. Só
 ## 1. Estado atual do projeto
 
 - O desenvolvimento **está em andamento**. O backend já tem as regras de domínio, a camada de dispositivos com simuladores, o pipeline de LPR e testes automatizados, em `backend/`.
-- **Ainda não existem** API HTTP, banco de dados em execução, migrations, frontend nem Dockerfiles. O `docs/modelo-dados/schema.sql` é só referência **[PROPOSTA]**.
+- A persistência (spec 014) já existe, com migrações Alembic; o `docs/modelo-dados/schema.sql` é histórico. Desde 2026-11-07 existem também a API HTTP, a orquestração, o frontend e os arquivos Docker (`compose.yaml`; specs 025 a 027).
 - O andamento fica em `specs/tarefas-iniciais.md` e o estado de cada spec em `specs/README.md`.
 - **Não presuma** que qualquer módulo, comando ou arquivo de configuração exista. Verifique no repositório antes de citar ou usar.
 - A organização real do código segue o `CONVENCOES.md`. O que ainda não foi criado continua sendo plano, não um retrato do código.
@@ -63,13 +63,12 @@ O artigo descreve um **protótipo funcional**, validado em ambiente controlado (
 - Ferramentas do backend: pytest, pytest-cov, ruff e mypy (ADR-0003)
 - Autenticação e permissões: sessão no banco com cookie; permissões no código e perfis no banco (ADR-0004)
 - Atualização em tempo real: SSE para eventos e imagens sob demanda (ADR-0005)
+- Acesso ao banco e migrações: SQLAlchemy 2 Core + psycopg 3 + Alembic (ADR-0006)
+- Frontend: React + Vite + React Router, Tailwind CSS v4 (ADR-0007); ferramentas Vitest, ESLint, Prettier, `tsc` estrito (ADR-0008)
 
 **[PENDENTE] — não escolher sozinho, não instalar, não "assumir por padrão":**
 
-- Framework do frontend
-- ORM e ferramenta de migração
 - Protocolos detalhados da balança e das cancelas
-- Ferramentas de teste, lint, formatação e tipagem estática do frontend
 - Demais bibliotecas auxiliares
 
 Observação: o artigo cita HTML + Tailwind + JavaScript para a interface; a definição vigente do autor é **TypeScript + Tailwind**, que prevalece.
@@ -212,7 +211,7 @@ O sistema aciona cancelas e lê uma balança industrial. Falhas têm consequênc
 - **Visão computacional**: use um conjunto de imagens/vídeos de referência com resultado esperado (ground truth) e fonte de imagens substituível. Testes de LPR devem ser reproduzíveis sem câmera conectada. Não "ajuste" o conjunto de teste para fazer o teste passar.
 - Testes de persistência devem rodar contra o **mesmo motor de banco** que será usado na execução, quando a decisão estiver tomada (PostgreSQL, ADR-0001).
 - Execute os testes relevantes **antes** de declarar a tarefa concluída e relate o resultado real (comando, resultado, falhas). Se não foi possível executar, diga isso.
-- Ferramentas de teste do backend: pytest (ADR-0003). As do frontend são **[PENDENTE]** até serem aprovadas; não presuma uma.
+- Ferramentas de teste do backend: pytest (ADR-0003). As do frontend: Vitest + Testing Library (ADR-0008).
 
 ---
 
@@ -229,7 +228,7 @@ O sistema aciona cancelas e lê uma balança industrial. Falhas têm consequênc
 
 ## 10. Qualidade de código
 
-- **Tipado**: Python com anotações de tipo em código novo; TypeScript em modo estrito **[PROPOSTA]**. Evite `Any`/`any` sem justificativa.
+- **Tipado**: Python com anotações de tipo em código novo; TypeScript em modo estrito (ADR-0008). Evite `Any`/`any` sem justificativa.
 - **Organizado e coeso**: módulos com responsabilidade única; regras de negócio **separadas** de I/O (HTTP, serial, câmera, banco) para serem testáveis isoladamente.
 - **Testável**: injete dependências (dispositivos, câmera, relógio, repositórios) em vez de acessá-las globalmente.
 - **Legível**: nomes claros e consistentes. Idioma: termos do domínio em português **[PROPOSTA]** (ex.: placa, agendamento, pesagem); identificadores técnicos em inglês são aceitáveis — **peça ao autor para fixar a convenção** e siga-a de forma uniforme. A convenção já foi fixada no `CONVENCOES.md` (D-10).
@@ -237,7 +236,7 @@ O sistema aciona cancelas e lê uma balança industrial. Falhas têm consequênc
 - **Validação nas fronteiras**: entradas da API, da serial, da câmera e do OCR.
 - **Configuração por ambiente**: nada de portas seriais, URLs, credenciais ou limiares fixos no código; segredos nunca no repositório.
 - **Operações bloqueantes** (OCR, leitura serial, captura de vídeo) não devem bloquear o ciclo de atendimento de requisições da API; a estratégia concreta está decidida em parte; o restante é **[PENDENTE]** (D-05, `AMBIENTE.md` §15).
-- Ferramentas de formatação/lint/tipagem estática do backend: ADR-0003. As do frontend: **[PENDENTE]**; proponha, não imponha.
+- Ferramentas de formatação/lint/tipagem estática do backend: ADR-0003. As do frontend: ESLint, Prettier e `tsc` estrito (ADR-0008).
 
 ### 10.1 Dependências e abstrações
 

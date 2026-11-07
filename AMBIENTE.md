@@ -25,11 +25,11 @@ O desenvolvimento **está em andamento** (atualizado em 2026-11-04). O andamento
 
 - `backend/` — regras de domínio, camada de dispositivos com simuladores, pipeline de LPR e testes automatizados, sem acesso a hardware real.
 - Contratos de API aprovados, ainda sem implementação: `specs/features/`, a partir da spec 007.
-- `docs/modelo-dados/schema.sql` — esquema PostgreSQL de **referência [PROPOSTA]**, derivado do banco legado; as specs de domínio podem revisá-lo. Não é base aprovada nem migration.
+- Persistência (spec 014): `backend/src/pesagem/persistencia/` com a migração Alembic `0001`, que é o esquema vigente. O `docs/modelo-dados/schema.sql` virou histórico.
 - `docs/decisoes/` — ADRs (ver `specs/README.md`).
 - `specs/` — índice, glossário e lista de tarefas.
 
-**Ainda não existem:** API HTTP, banco de dados em execução, migrations, frontend e Dockerfiles. As demais descrições de estrutura neste documento continuam **[PROPOSTA]** enquanto não forem criadas.
+Desde 2026-11-07: API HTTP (specs 007 a 013), orquestração (spec 015), frontend (specs 016 a 024, em construção) e Docker (`backend/Dockerfile`, `frontend/Dockerfile`, `compose.yaml`; specs 025 a 027). As demais descrições de estrutura neste documento continuam **[PROPOSTA]** enquanto não forem criadas.
 
 ### 0.3 Divergências entre fontes (a resolver/registrar)
 
@@ -121,9 +121,9 @@ Requisito do `AGENTS.md`: transições inválidas são rejeitadas e registradas;
 
 ### 3.2 Em aberto **[PENDENTE]**
 
-Framework do frontend, ORM, ferramenta de migração, protocolos detalhados dos equipamentos, ferramentas de teste/lint do frontend, execução da captura de câmera (restante da D-05), licença do repositório (D-12).
+Protocolos detalhados dos equipamentos, execução da captura de câmera (restante da D-05), licença do repositório (D-12).
 
-Já decididos: banco (ADR-0001), arquitetura (ADR-0002), ferramentas do backend (ADR-0003), autenticação (ADR-0004) e tempo real (ADR-0005). A situação de cada decisão está na §15.
+Já decididos: banco (ADR-0001), arquitetura (ADR-0002), ferramentas do backend (ADR-0003), autenticação (ADR-0004), tempo real (ADR-0005), ORM e migrações (ADR-0006), framework do frontend (ADR-0007) e ferramentas do frontend (ADR-0008). A situação de cada decisão está na §15.
 
 As versões das bibliotecas do backend estão fixadas em `backend/pyproject.toml`, com a justificativa. Versões só devem ser fixadas com justificativa e registradas (ADR ou arquivo de dependências).
 
@@ -251,7 +251,75 @@ python3 -m venv .venv                 # Python >= 3.12
 .venv/bin/pytest -m avaliacao -s
 ```
 
-Ainda não existem comandos de execução da aplicação, Docker nem frontend.
+**Persistência** — executados em 2026-11-07 (BE-503, spec 014), a partir de `backend/`:
+
+```sh
+PYTHONPATH=src .venv/bin/alembic upgrade head   # com as PESAGEM_BANCO_*; o pacote não é instalado (spec 001)
+.venv/bin/pytest tests/integracao               # sobe um contêiner postgres:18.6-alpine (precisa de Docker)
+```
+
+**API** — executados em 2026-11-07 (BE-706), a partir de `backend/`, com as `PESAGEM_*` exportadas. Obrigatórias na partida: `PESAGEM_BANCO_HOST`, `_PORTA`, `_NOME`, `_USUARIO`, `_SENHA`; `PESAGEM_PATIO_FUSO`; `PESAGEM_SEGURANCA_ORIGENS_PERMITIDAS`, `_SESSAO_TEMPO_SEM_USO_S`, `_LOGIN_TENTATIVAS_MAXIMAS`, `_LOGIN_BLOQUEIO_S`; `PESAGEM_GERAL_TAMANHO_PAGINA_PADRAO`, `_TAMANHO_PAGINA_MAXIMO`. Opcionais juntas (sem elas, o autoatendimento fica desligado): `PESAGEM_SEGURANCA_AUTOATENDIMENTO_REDES`, `_TENTATIVAS_MAXIMAS`, `_BLOQUEIO_S`. Desde a BE-703, também as de balança, pesagem, LPR, câmera, tempo real e operação listadas na §8. A migração `0004` semeia o ponto de controle único; sem ele a partida falha.
+
+```sh
+PYTHONPATH=src .venv/bin/alembic upgrade head
+PYTHONPATH=src .venv/bin/python -m pesagem.api.criar_administrador   # primeiro administrador; pede nome, login, senha e confirmação, sem eco
+PYTHONPATH=src .venv/bin/uvicorn --factory pesagem.main:criar_aplicacao --host 127.0.0.1 --port 8000   # um processo só, sem --workers (ADR-0002)
+```
+
+Sem uma variável obrigatória, a partida falha com `ErroConfiguracao: variável obrigatória ausente: <NOME>`.
+
+**Frontend** — executados em 2026-11-07 (FE-102, spec 016), a partir de `frontend/`, com Node 22.22:
+
+```sh
+npm ci                                   # instala pelo package-lock.json (ADR-0008)
+PESAGEM_GERAL_URL_BACKEND=http://127.0.0.1:8000 npm run dev   # proxy de /api; sem a variável, falha com mensagem clara
+npm run build                            # gera dist/
+npm test                                 # Vitest
+npm run lint                             # ESLint
+npm run format                           # Prettier (verificação)
+npm run typecheck                        # tsc estrito
+```
+
+Proxy do Vite e cookie `Secure` em `http://localhost` verificados contra o backend real em 2026-11-07 (FE-308); SSE pelo proxy do Vite verificado contra a rota real em 2026-11-07 (FE-303), inclusive queda e volta do backend.
+
+**Ponta a ponta** — executado em 2026-11-07 (INT-002, spec 028), a partir de `backend/`:
+
+```sh
+.venv/bin/pytest tests/ponta_a_ponta   # 18 testes, ~13 s; precisa de Docker (sobe postgres:18.6-alpine)
+```
+
+Verificação final em 2026-11-07 (Maestro): backend `pytest` 972 aprovados e 1 desmarcado (avaliação do LPR), `ruff` e `mypy` limpos; frontend `npm test` 174 aprovados, lint, typecheck, format e build sem erro. Validação pelo navegador (Playwright, compose isolado) dos 11 grupos de casos de uso, sem falha funcional.
+
+**Docker do backend** — executados em 2026-11-07 (BE-801, spec 025), a partir de `backend/`:
+
+```sh
+docker build -t pesagem-backend .                                   # 1m10s sem cache; imagem de 2,09 GB
+docker run --rm --env-file <arquivo> pesagem-backend alembic upgrade head   # migração é comando separado
+docker run -d --env-file <arquivo> -p 127.0.0.1:8000:8000 pesagem-backend
+docker run --rm -v pesagem-modelos-ocr:/modelos-ocr pesagem-backend python -m pesagem.lpr.baixar_modelos /modelos-ocr en
+```
+
+**Docker do frontend** — executados em 2026-11-07 (FE-401, spec 026), a partir de `frontend/`:
+
+```sh
+docker build -t pesagem-frontend .      # 27 s; imagem de 94,7 MB (Caddy 2.11.6 servindo o dist/)
+docker run -d -e PESAGEM_GERAL_URL_BACKEND=http://<backend>:8000 -p 127.0.0.1:8080:8080 pesagem-frontend
+```
+
+**Compose** — executados em 2026-11-07 (INT-001, spec 027), a partir da raiz, Docker 29.9.0 e Compose 5.6.0:
+
+```sh
+cp .env.exemplo .env                  # troque PESAGEM_BANCO_SENHA; modo SIMULADO
+docker compose up -d --build --wait   # db, migracao (única), backend, frontend (HTTPS em https://localhost:8443)
+docker compose run --rm migracao python -m pesagem.api.criar_administrador   # primeiro administrador; precisa de terminal
+docker compose cp frontend:/data/caddy/pki/authorities/local/root.crt ./pesagem-ca.crt   # CA interna do Caddy
+curl --cacert ./pesagem-ca.crt https://localhost:8443/api/sessoes/atual   # 401 sem cookie = vivo
+docker compose --profile dev up -d db-dev      # banco em 127.0.0.1:5432 para backend e npm run dev na máquina
+docker compose --profile teste up -d db-teste  # banco descartável em 127.0.0.1:5433
+docker compose down                   # mantém os volumes; -v apaga banco, modelos e certificados
+```
+
+Só o `frontend` publica porta (127.0.0.1:8443); banco e backend ficam na rede do compose. O perfil `hardware-real` está bloqueado (modo REAL indisponível, Q-01). Os valores de balança, LPR e tempos do `.env.exemplo` são de demonstração, não calibrados (spec 027 P-1).
 
 ---
 
@@ -262,8 +330,8 @@ Ainda não existem comandos de execução da aplicação, Docker nem frontend.
 | Serviço | Papel | Observação |
 |---|---|---|
 | `backend` | FastAPI + módulos de LPR e dispositivos | Pode concentrar LPR e serial inicialmente (monólito modular). Separar só com justificativa. |
-| `frontend` | Interface TypeScript + Tailwind | Em desenvolvimento, servidor de desenvolvimento; em execução, build estático servido por algum servidor — **[PENDENTE]**. |
-| `db` | PostgreSQL (ADR-0001) | Sem ORM definido (D-02). |
+| `frontend` | Interface TypeScript + Tailwind | Em desenvolvimento, servidor de desenvolvimento; em execução, Caddy com HTTPS (CA interna por padrão) servindo o `dist/` e repassando `/api` ao backend (specs 026 e 027). |
+| `db` | PostgreSQL (ADR-0001) | Acesso e migrações: ADR-0006. Serviço `migracao`: execução única de `alembic upgrade head` antes do backend (spec 027 §4.1). |
 | (opcional) `simulador-*` | Balança/cancela/câmera simulados | Útil para demonstração e testes. |
 
 - Perfis/ativações distintos para **desenvolvimento**, **testes** e **execução com hardware real** (ex.: o modo real só com dispositivos mapeados e variáveis explícitas).
@@ -273,8 +341,8 @@ Ainda não existem comandos de execução da aplicação, Docker nem frontend.
 ### 7.2 Considerações sobre imagens e build **[PROPOSTA]**
 
 - Evitar incluir modelos/dados de teste grandes na imagem; usar volumes.
-- Documentar o tamanho/tempo esperado de build quando existir.
-- Não criar Dockerfiles ou Compose **antes** da spec/plano aprovados.
+- Tamanho e tempo medidos do backend: spec 025 §6.
+- Perfis: (nenhum) = execução simulada; `dev` = `db-dev`; `teste` = `db-teste`; `hardware-real` = bloqueado (spec 027 §4.5). Execução: spec 027.
 
 ### 7.3 Acesso a dispositivos a partir de contêiner — **risco**
 
@@ -290,15 +358,16 @@ Ainda não existem comandos de execução da aplicação, Docker nem frontend.
 
 | Grupo | Exemplos de configuração necessária | Observação |
 |---|---|---|
-| Geral | ambiente (dev/teste/execução), nível de log | — |
+| Geral | ambiente (dev/teste/execução), nível de log; `PESAGEM_GERAL_TAMANHO_PAGINA_PADRAO` e `_TAMANHO_PAGINA_MAXIMO` (spec 007 §3.3); `PESAGEM_HTTPS_HOST`, `_PORTA`, `_ENDERECO`, `_TLS` e `PESAGEM_IP_PROXY` (lidas só pelo `compose.yaml` e pelo `Caddyfile`, spec 027 §4.3); `PESAGEM_BANCO_PORTA_DEV` (porta do perfil `dev`); `PESAGEM_GERAL_URL_BACKEND` (destino do proxy de `/api` no `npm run dev` e na imagem do frontend, sem valor padrão; specs 016 e 026) | Em desenvolvimento, a origem do Vite precisa estar em `PESAGEM_SEGURANCA_ORIGENS_PERMITIDAS` (spec 012 §6.9). |
 | Pátio | `PESAGEM_PATIO_FUSO`: fuso que define o "hoje" e os horários das faixas | Obrigatório, sem valor padrão (spec 008 §6.1). |
 | Banco | parâmetros de conexão | PostgreSQL (ADR-0001). |
-| Câmeras | origem da imagem (câmera de rede, dispositivo local, arquivo de vídeo, pasta de imagens), taxa de captura | Fonte substituível para testes. |
-| LPR | limiar de confiança, idiomas/modelos do OCR, parâmetros de pré-processamento, local de cache dos modelos | Valores de limiar **[PENDENTE]**: definir empiricamente com dados de teste. |
-| Balança | modo (real/simulado), porta, parâmetros seriais (taxa, bits, paridade, parada), timeout, parâmetros de estabilidade | Valores e protocolo dependem do equipamento (**[PENDENTE]**). |
-| Cancelas | modo (real/simulado), porta/canal, timeout, política de retentativa | Idem. |
-| Segurança | origens permitidas, tempos de sessão, limite de tentativas de login, redes do autoatendimento (sem configuração, a rota fica desligada) | ADR-0004; nomes e valores no contrato (CT-106, CT-107). |
-| Tempo real | intervalos de `heartbeat`, de peso e de imagem do diagnóstico; frequência da análise e idade máxima da imagem | ADR-0005; valores na CT-103 e na BE-601. |
+| Câmeras | origem da imagem (câmera de rede, dispositivo local, arquivo de vídeo, pasta de imagens), taxa de captura | Fonte substituível para testes.  Em uso (BE-703): `PESAGEM_CAMERA_MODO` (ausente = `SIMULADO`; `REAL` impede a partida, Q-06), `_INTERVALO_ANALISE_MS`, `_IDADE_MAXIMA_IMAGEM_MS`. |
+| LPR | limiar de confiança, idiomas/modelos do OCR, parâmetros de pré-processamento, local de cache dos modelos | Valores de limiar **[PENDENTE]**: definir empiricamente com dados de teste.  Em uso: `PESAGEM_LPR_LIMIAR_CONFIANCA`. Pasta e idiomas dos modelos só quando houver câmera real (proposta do Keel: `PESAGEM_LPR_PASTA_MODELOS`, `PESAGEM_LPR_IDIOMAS`). |
+| Balança | modo (real/simulado), porta, parâmetros seriais (taxa, bits, paridade, parada), timeout, parâmetros de estabilidade | Valores e protocolo dependem do equipamento (**[PENDENTE]**).  Em uso (BE-703): `PESAGEM_BALANCA_MODO` (ausente = `SIMULADO`; `REAL` impede a partida, Q-01), `_PESO_MINIMO_KG`, `_PESO_MAXIMO_KG`, `_QUANTIDADE_LEITURAS_ESTAVEIS`, `_VARIACAO_MAXIMA_KG`, `_JANELA_ESTABILIDADE_MS`, `_INTERVALO_LEITURA_MS`; `PESAGEM_PESAGEM_TOLERANCIA_MOVIMENTACAO_KG` (padrão 20, valor do autor, RN-006). |
+| Cancelas | modo (real/simulado), porta/canal, timeout, política de retentativa | Idem.  Em uso: `PESAGEM_CANCELA_MODO` (ausente = `SIMULADO`; `REAL` impede a partida). |
+| Segurança | `PESAGEM_SEGURANCA_ORIGENS_PERMITIDAS`, `_SESSAO_TEMPO_SEM_USO_S`, `_LOGIN_TENTATIVAS_MAXIMAS`, `_LOGIN_BLOQUEIO_S`, `_AUTOATENDIMENTO_REDES` (sem configuração, a rota fica desligada), `_AUTOATENDIMENTO_TENTATIVAS_MAXIMAS`, `_AUTOATENDIMENTO_BLOQUEIO_S` | ADR-0004; definidas nas specs 012 e 013. |
+| Tempo real | `PESAGEM_TEMPO_REAL_HEARTBEAT_MS`, `_LIMITE_SEM_HEARTBEAT_MS`, `_INTERVALO_PESO_MS`, `_INTERVALO_IMAGEM_MS`; análise: `PESAGEM_CAMERA_INTERVALO_ANALISE_MS`, `PESAGEM_CAMERA_IDADE_MAXIMA_IMAGEM_MS`; balança: `PESAGEM_BALANCA_INTERVALO_LEITURA_MS` | ADR-0005; definidas nas specs 009, 011 e 015, sem valor padrão. |
+| Operação | `PESAGEM_OPERACAO_TEMPO_LIMITE_POSICIONAMENTO_MS`, `_TEMPO_LIMITE_PESAGEM_MS`, `_TEMPO_LIMITE_SAIDA_BALANCA_MS` | Tempos-limite das etapas (spec 015), sem valor padrão. |
 | Retenção/privacidade | — | Sem prazo: as imagens das decisões ficam até o administrador pedir a exclusão (RN-022). Adequação à LGPD **[PENDENTE]** (Q-08). |
 
 Regras: padrão **simulado/seguro**; valores obrigatórios ausentes devem causar falha de inicialização clara, não um valor "chutado".
@@ -457,7 +526,7 @@ Pontos levantados antes do ADR, que seguem úteis para a execução real:
 
 ## 14. Estratégia de testes **[PROPOSTA]**
 
-Backend: pytest (ADR-0003); hoje só existem testes unitários e a avaliação do LPR, fora da execução padrão. Frontend: **[PENDENTE]** (FE-002). Princípio: **todo teste automatizado roda sem hardware real**.
+Backend: pytest (ADR-0003); hoje só existem testes unitários e a avaliação do LPR, fora da execução padrão. Frontend: Vitest + Testing Library, ESLint, Prettier e `tsc` estrito (ADR-0008). Princípio: **todo teste automatizado roda sem hardware real**.
 
 ### 14.1 Níveis
 
@@ -492,18 +561,18 @@ Veículo com agendamento válido; veículo sem agendamento; falha no reconhecime
 | ID | Decisão | Situação / observação |
 |---|---|---|
 | D-01 | Banco de dados | **Decidido: PostgreSQL** (autor, 2026-10-29). ADR-0001 Aceita. |
-| D-02 | ORM e ferramenta de migração | Não definidos. Depende de D-01. |
-| D-03 | Framework do frontend (TypeScript + Tailwind) | Não definido. |
+| D-02 | ORM e ferramenta de migração | **Decidido (autor, 2026-11-07):** SQLAlchemy 2 Core síncrono (em `asyncio.to_thread`) + psycopg 3 + Alembic, migrações em SQL escrito à mão. ADR-0006. |
+| D-03 | Framework do frontend (TypeScript + Tailwind) | **Decidido (autor, 2026-11-07):** React + Vite + React Router, Tailwind CSS v4. ADR-0007. |
 | D-04 | Autenticação/autorização e perfis | **Decidido:** ADR-0004 (Aceita, 2026-11-04): sessão no banco com cookie; permissões no código e perfis no banco; autoatendimento do motorista sem login, só pela rede do pátio. |
-| D-05 | Estratégia de execução de OCR/serial/captura sem bloquear a API (tarefas em background, worker/processo separado, threads) | **Parcial (2026-10-29, spec 004 P-1):** interfaces dos dispositivos assíncronas (PySerial em `asyncio.to_thread`). OCR: `LeitorPlaca` síncrono chamado em `asyncio.to_thread` (spec 005 P-9); reabrir se a latência medida for alta. Captura de câmera continua em aberto (Q-06). |
+| D-05 | Estratégia de execução de OCR/serial/captura sem bloquear a API (tarefas em background, worker/processo separado, threads) | **Decidida (2026-11-07, spec 015 §13, delegada):** tarefas asyncio em um processo; OCR, análise de imagem e repositórios em `asyncio.to_thread`; dispositivos assíncronos. Reabrir se a latência medida bloquear a API (R-04). Histórico: **Parcial (2026-10-29, spec 004 P-1):** interfaces dos dispositivos assíncronas (PySerial em `asyncio.to_thread`). OCR: `LeitorPlaca` síncrono chamado em `asyncio.to_thread` (spec 005 P-9); reabrir se a latência medida for alta. Captura de câmera continua em aberto (Q-06). |
 | D-06 | Transporte de imagens/eventos em tempo real para a interface | **Decidido:** ADR-0005 (Aceita, 2026-11-04): SSE para eventos e imagens sob demanda; a análise das imagens é em tempo real no backend (RF-034). |
 | D-07 | Monólito modular vs. serviços separados | **Decidido**: monólito modular — ADR-0002 (Aceita, 2026-10-29). |
 | D-08 | Estratégia de modelos do EasyOCR (cache, modo offline) | **Decidido (2026-10-29, spec 005 P-10):** modelos baixados uma vez, por comando explícito, para uma pasta configurada; operação sem download (modelos ausentes impedem a partida); CPU (D-09). |
 | D-09 | Uso de GPU | Não definido; assumir CPU. |
 | D-10 | Idioma/convenção de nomes no código | **Decidido:** `CONVENCOES.md` aprovado pelo autor (2026-10-29, C-003). |
-| D-11 | Ferramentas de teste, lint, formatação e tipagem estática | **Backend decidido** — ADR-0003 (Aceita, 2026-10-29): pytest, pytest-cov, ruff, mypy estrito; `venv` + `pip`. Frontend: pendente (FE-002). |
+| D-11 | Ferramentas de teste, lint, formatação e tipagem estática | **Backend decidido** — ADR-0003 (Aceita, 2026-10-29): pytest, pytest-cov, ruff, mypy estrito; `venv` + `pip`. Frontend decidido (autor, 2026-11-07): Vitest + Testing Library, ESLint + Prettier, `tsc` estrito — ADR-0008. |
 | D-12 | Licença do repositório | Não definida. O `LICENSE` MIT e o selo no `README.md` já existem no repositório, sem decisão registrada (C-001). |
-| D-13 | Armazenamento e retenção de imagens de evidência | **Parcial (2026-11-04):** só as imagens das decisões, guardadas até o administrador pedir a exclusão (RN-022). Falta definir onde (BE-502) e a adequação à LGPD (Q-08). |
+| D-13 | Armazenamento e retenção de imagens de evidência | **Parcial (2026-11-04):** só as imagens das decisões, guardadas até o administrador pedir a exclusão (RN-022). **Onde (2026-11-07, delegada):** `bytea` no banco, gravado na mesma transação da decisão (spec 014 §10). Falta a adequação à LGPD (Q-08). |
 | D-14 | Protocolos de balança e cancelas | Dependem de informações do equipamento (Q-01). |
 
 ---

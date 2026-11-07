@@ -221,39 +221,39 @@ Regras de camadas: `CONVENCOES.md` P-4 a P-7 (`dominio/` sem I/O; só `dispositi
 
 ### B6 — Persistência
 
-#### [ ] BE-501 — ADR de ORM e migrações (D-02) 🔒
+#### [x] BE-501 — ADR de ORM e migrações (D-02) 🔒 — concluída 2026-11-07 (ADR-0006, delegada)
 - **Depende de:** C-201 aceito.
 
-#### [ ] BE-502 — Spec `persistencia` 🔒
+#### [x] BE-502 — Spec `persistencia` 🔒 — concluída 2026-11-07 (spec 014, delegada)
 - **Fazer:** revisar o `docs/modelo-dados/schema.sql` à luz das specs BE-201 a BE-203, BE-301 e BE-401 e das respostas da C-002; definir repositórios por agregado (`CONVENCOES.md` §2). Testes de persistência contra o mesmo motor de execução (`AGENTS.md` §8).
 - **Alterações já levantadas:** spec 004 §11 (`evento_cancela`), spec 006 §12 (situações, reserva da balança, eventos de transição), spec 007 §9, spec 008 §9, ADR-0004 §5 (sessão, perfis, `criado_por`, `codigo_nota`) e RN-022 (onde guardar as imagens das decisões).
 
-#### [ ] BE-503 — Implementar persistência e primeira migração
+#### [x] BE-503 — Implementar persistência e primeira migração — concluída 2026-11-07
 
 ### B7 — Orquestração
 
-#### [ ] BE-601 — Spec `orquestracao-operacao` 🔒
+#### [x] BE-601 — Spec `orquestracao-operacao` 🔒 — concluída 2026-11-07 (spec 015, delegada)
 - **Fazer:** como o domínio, o LPR, os dispositivos e a persistência se coordenam em cada passo do fluxo (`AMBIENTE.md` §2), incluindo execução sem bloquear a API (D-05, ADR na própria spec ou separado).
 - **Pontos já levantados:** fonte de posição com simulador (RF-027, spec 006 §12), análise contínua com limite de idade da imagem (RF-034, ADR-0005 §4.1), retomada, reserva da balança e liberação de caminhão cancelado (spec 006 §6.3, §6.4, §7.2), RN-014 com o fuso do pátio (spec 008 §6.1) e o que fazer se falhar a gravação de uma imagem de decisão (RN-022, ainda sem decisão).
 
-#### [ ] BE-602 — Implementar a orquestração com dispositivos e LPR simulados
+#### [x] BE-602 — Implementar a orquestração com dispositivos e LPR simulados — concluída 2026-11-07
 
 ### B8 — API (implementa os contratos da trilha C)
 
 Cada tarefa implementa **exatamente** um contrato aprovado. Nada além do contrato (S-3).
 
-#### [ ] BE-701 — API de cadastros (contrato `contrato-api-cadastros`)
-#### [ ] BE-702 — API de agendamentos (contrato `contrato-api-agendamentos`)
-#### [ ] BE-703 — API da operação em tempo real (contrato `contrato-api-operacao`)
-#### [ ] BE-704 — API de histórico (contrato `contrato-api-historico`)
-#### [ ] BE-705 — API de diagnóstico e dispositivos (contrato `contrato-api-diagnostico`)
-#### [ ] BE-706 — API de autenticação e usuários (contrato `contrato-api-autenticacao`)
-#### [ ] BE-707 — API de autoatendimento (contrato `contrato-api-autoatendimento`)
+#### [x] BE-701 — API de cadastros (contrato `contrato-api-cadastros`) — concluída 2026-11-07
+#### [x] BE-702 — API de agendamentos (contrato `contrato-api-agendamentos`) — concluída 2026-11-07
+#### [x] BE-703 — API da operação em tempo real (contrato `contrato-api-operacao`) — concluída 2026-11-07
+#### [x] BE-704 — API de histórico (contrato `contrato-api-historico`) — concluída 2026-11-07
+#### [x] BE-705 — API de diagnóstico e dispositivos (contrato `contrato-api-diagnostico`) — concluída 2026-11-07
+#### [x] BE-706 — API de autenticação e usuários (contrato `contrato-api-autenticacao`) — concluída 2026-11-07
+#### [x] BE-707 — API de autoatendimento (contrato `contrato-api-autoatendimento`) — concluída 2026-11-07
 - Testes de integração (API + banco + dispositivos simulados) citando os `CA-` do contrato.
 
 ### B9 — Container do backend
 
-#### [ ] BE-801 — Spec e implementação do `backend/Dockerfile` 🔒
+#### [x] BE-801 — Spec e implementação do `backend/Dockerfile` 🔒 — concluída 2026-11-07 (spec 025, delegada)
 - **Fazer:** apenas o Dockerfile do backend; volumes para modelos do EasyOCR (D-08) e modo `SIMULADO` como padrão. O `compose.yaml` é da trilha E.
 
 ---
@@ -272,7 +272,7 @@ Esta trilha é a **única ponte** entre backend e frontend (S-3, S-4).
 - **Fazer:** como a tela operacional e o diagnóstico recebem eventos e imagens (polling, SSE, WebSocket, snapshots). Opções com prós e contras para os **dois** lados.
 - **Resultado:** ADR-0005 aceito pelo autor em 2026-11-04.
 
-### [ ] CT-101 a CT-107 — Specs de contrato 🔒 (uma por tarefa)
+### [x] CT-101 a CT-107 — Specs de contrato 🔒 (uma por tarefa) — concluídas (CT-101/102 em 2026-11-04; CT-103 a CT-107 em 2026-11-07, delegadas)
 
 | Tarefa | Spec | Cobre | Depende de |
 |---|---|---|---|
@@ -292,7 +292,7 @@ Cada contrato define, sem código:
 - quais ações exigem quais perfis (CT-001);
 - critérios de aceitação verificáveis pelos **dois** lados.
 
-**Andamento:** CT-101 concluída em 2026-11-04 (spec 007, aprovada pelo autor). CT-102 concluída em 2026-11-04 (spec 008, aprovada pelo autor).
+**Andamento:** CT-101 concluída em 2026-11-04 (spec 007, aprovada pelo autor). CT-102 concluída em 2026-11-04 (spec 008, aprovada pelo autor). Em 2026-11-07, com aprovação delegada: CT-103 (spec 009), CT-104 (spec 010), CT-105 (spec 011), CT-106 (spec 012), CT-107 (spec 013).
 
 ### [ ] CT-9xx — Revisão de contrato (sob demanda)
 - Aberta quando backend ou frontend encontrar algo que o contrato não cobre (S-4). Atualizar a spec, obter aprovação 🔒 e só então voltar às trilhas B ou D.
@@ -306,25 +306,25 @@ Regras: `CONVENCOES.md` §8 (TypeScript, Tailwind, campos da API em `snake_case`
 
 ### D1 — Decisões do frontend
 
-#### [ ] FE-001 — ADR do framework do frontend (D-03) 🔒
+#### [x] FE-001 — ADR do framework do frontend (D-03) 🔒 — concluída 2026-11-07 (ADR-0007, delegada)
 - **Ler:** `AMBIENTE.md` §3, §10; `CONVENCOES.md` §8.
 - **Fazer:** opções compatíveis com TypeScript + Tailwind **[DEFINIDO]**, com prós e contras, licença e impacto em Docker. Se o framework impuser convenções próprias, propor a atualização do `CONVENCOES.md` §8 no mesmo ADR.
 
-#### [ ] FE-002 — ADR de ferramentas do frontend: teste, lint, formatação, TypeScript estrito (D-11, parte frontend) 🔒
+#### [x] FE-002 — ADR de ferramentas do frontend: teste, lint, formatação, TypeScript estrito (D-11, parte frontend) 🔒 — concluída 2026-11-07 (ADR-0008, delegada)
 - Escopo **apenas frontend**. Independente da BE-001.
 
 ### D2 — Esqueleto
 
-#### [ ] FE-101 — Spec e plano `esqueleto-frontend` 🔒
+#### [x] FE-101 — Spec e plano `esqueleto-frontend` 🔒 — concluída 2026-11-07 (spec 016, delegada)
 - **Depende de:** FE-001, FE-002.
 - **Fazer:** estrutura mínima em `frontend/src/` (`paginas/`, `componentes/`, `api/`, `tipos/`, `estilos/`, conforme `CONVENCOES.md` §2), configuração de build e de testes, layout base com indicação visível do modo (real/simulado — `AMBIENTE.md` §10.1 item 7). Sem telas de negócio ainda.
 
-#### [ ] FE-102 — Implementar o esqueleto
+#### [x] FE-102 — Implementar o esqueleto — concluída 2026-11-07
 - **Verificar:** executar build e testes definidos na FE-002 e relatar a saída real.
 
 ### D3 — Tipos e cliente da API
 
-#### [ ] FE-201 — Tipos e cliente HTTP a partir de um contrato aprovado
+#### [x] FE-201 — Tipos e cliente HTTP a partir de um contrato aprovado — concluída 2026-11-07 (FE-201a a g, specs 007 a 013)
 - **Depende de:** o contrato correspondente (CT-101 a CT-107) aprovado.
 - **Fazer:** em `frontend/src/tipos/` e `frontend/src/api/`, tipos que espelham **exatamente** o contrato e um cliente HTTP. Respostas simuladas para desenvolvimento e testes só com esses tipos (S-6).
 - Repetir esta tarefa (FE-201a, FE-201b, …) para cada contrato aprovado.
@@ -335,21 +335,21 @@ Cada tela tem dois passos: **spec da tela** 🔒 (Trilha: Frontend; comportament
 
 | Tarefa | Tela | Contrato usado | Observações |
 |---|---|---|---|
-| FE-301 | Cadastros (veículos, motoristas, transportadoras, tipos de veículo, produtos) | `contrato-api-cadastros` | — |
-| FE-302 | Agendamentos (criação **manual**) e faixas de horário | `contrato-api-agendamentos` | Nada de agendamento automático (`AGENTS.md` §12). |
-| FE-303 | Tela operacional em tempo real | `contrato-api-operacao` | Estados de falha claros e inequívocos; comandos só solicitam, quem decide é o backend (S-5). |
-| FE-304 | Histórico e auditoria | `contrato-api-historico` | — |
-| FE-305 | Diagnóstico de visão computacional (imagens, ROIs, interpretações) | `contrato-api-diagnostico` | Respeitar a política de privacidade/retenção (Q-08). |
-| FE-306 | Estado dos dispositivos e intervenção manual | `contrato-api-diagnostico`, `contrato-api-operacao` | Intervenção sempre rastreável; permissões conforme CT-001. |
-| FE-307 | Autoatendimento do motorista (RF-033), sem login | `contrato-api-autoatendimento` | Nunca mostra dados do cadastro (RN-021). |
-| FE-308 | Login e gestão de usuários (RF-032) | `contrato-api-autenticacao` | Não guarda credencial em JavaScript (ADR-0004). |
+| FE-301 | Cadastros (veículos, motoristas, transportadoras, tipos de veículo, produtos) | `contrato-api-cadastros` | ✓ 2026-11-07 (spec 018) |
+| FE-302 | Agendamentos (criação **manual**) e faixas de horário | `contrato-api-agendamentos` | Nada de agendamento automático (`AGENTS.md` §12). ✓ 2026-11-07 (spec 019) |
+| FE-303 | Tela operacional em tempo real | `contrato-api-operacao` | Estados de falha claros e inequívocos; comandos só solicitam, quem decide é o backend (S-5). ✓ 2026-11-07 (spec 022) |
+| FE-304 | Histórico e auditoria | `contrato-api-historico` | ✓ 2026-11-07 (spec 021) |
+| FE-305 | Diagnóstico de visão computacional (imagens, ROIs, interpretações) | `contrato-api-diagnostico` | Respeitar a política de privacidade/retenção (Q-08). ✓ 2026-11-07 (spec 023) |
+| FE-306 | Estado dos dispositivos e intervenção manual | `contrato-api-diagnostico`, `contrato-api-operacao` | Intervenção sempre rastreável; permissões conforme CT-001. ✓ 2026-11-07 (spec 024) |
+| FE-307 | Autoatendimento do motorista (RF-033), sem login | `contrato-api-autoatendimento` | Nunca mostra dados do cadastro (RN-021). ✓ 2026-11-07 (spec 020) |
+| FE-308 | Login e gestão de usuários (RF-032) | `contrato-api-autenticacao` | Não guarda credencial em JavaScript (ADR-0004). ✓ 2026-11-07 (spec 017) |
 
 - Ordem sugerida: FE-308 → FE-301 → FE-302 → FE-307 → FE-304 → FE-303 → FE-305 → FE-306 (das telas mais simples para as de tempo real; as protegidas dependem do login).
 - Se a tela precisar de um dado que o contrato não tem: **pare** e abra uma CT-9xx (S-4).
 
 ### D5 — Container do frontend
 
-#### [ ] FE-401 — Spec e implementação do `frontend/Dockerfile` 🔒
+#### [x] FE-401 — Spec e implementação do `frontend/Dockerfile` 🔒 — concluída 2026-11-07 (spec 026, delegada)
 - **Fazer:** apenas o Dockerfile do frontend (desenvolvimento e build estático). O `compose.yaml` é da trilha E.
 
 ---
@@ -358,14 +358,14 @@ Cada tela tem dois passos: **spec da tela** 🔒 (Trilha: Frontend; comportament
 
 Pastas permitidas: `compose.yaml`, `.env.exemplo`, `README.md`, `backend/tests/ponta_a_ponta/`. **Não altera a lógica de `backend/src/` nem de `frontend/src/`**; se encontrar defeito, abre tarefa na trilha correta.
 
-#### [ ] INT-001 — Spec e implementação do `compose.yaml` 🔒
+#### [x] INT-001 — Spec e implementação do `compose.yaml` 🔒 — concluída 2026-11-07 (spec 027, delegada)
 - **Depende de:** BE-801, FE-401, C-201.
 - **Fazer:** serviços `backend`, `frontend`, `db`; volumes `pesagem-dados-db` e `pesagem-modelos-ocr`; perfis `dev`, `teste`, `hardware-real` (`CONVENCOES.md` §7.2); `.env.exemplo` com todas as variáveis `PESAGEM_<GRUPO>_<NOME>`, sem segredos e com modo `SIMULADO` padrão; HTTPS (ADR-0004) e proxy sem buffer na rota de eventos (ADR-0005).
 
-#### [ ] INT-002 — Testes ponta a ponta com simuladores
+#### [x] INT-002 — Testes ponta a ponta com simuladores — concluída 2026-11-07 (spec 028, delegada)
 - **Fazer:** os 7 cenários do artigo (`AMBIENTE.md` §14.4) mais as falhas do `AGENTS.md` §7.2, do agendamento manual ao peso líquido, sem hardware real.
 
-#### [ ] INT-003 — README de instalação, configuração e execução em modo simulado
+#### [x] INT-003 — README de instalação, configuração e execução em modo simulado — concluída 2026-11-07
 - **Fazer:** documentação básica **[ARTIGO]**, só com comandos realmente testados nesta sessão. Licença (D-12) apenas com decisão do autor.
 
 ---

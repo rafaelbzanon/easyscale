@@ -28,6 +28,19 @@ Origem: **[ARTIGO]** = descrito no artigo do TCC (`docs/artigo/artigo-tcc.pdf`);
 | Motivo de intervenção | `motivo_intervencao` | Por que a operação parou em `AGUARDANDO_INTERVENCAO` (spec 006 §5.4). | [AUTOR] (spec 006) | `erro`, `causa` |
 | Versão da operação | `versao` | Número que sobe a cada transição; impede que dois eventos simultâneos avancem a mesma operação. | [AUTOR] (spec 006) | `revision` |
 | Ação pedida | `acao_pedida` | Comando de cancela que a máquina de estados pede à orquestração em uma transição. | [AUTOR] (spec 006) | `side_effect` |
+| Usuário do sistema | `usuario` | Pessoa com login no sistema, com um perfil (RF-031, RF-032). | [AUTOR] (ADR-0004) | `user` |
+| Perfil de acesso | `perfil` | Conjunto de permissões atribuído ao usuário; perfis iniciais `ADMINISTRADOR`, `OPERADOR`, `AUDITOR` (RF-031). | [AUTOR] (ADR-0004) | `role` |
+| Decisão de entrada | `decisao` | Resultado da regra pura de autorização (spec 015): `AUTORIZADA`, `RETORNO_ACEITO` (volta, RN-018) ou `NAO_AUTORIZADA`, com `motivo` (`MotivoNaoAutorizacao`). | [AUTOR] (spec 015, delegada) | `resultado_autorizacao` |
+| Posição na balança | `FontePosicao`, `LeituraPosicao` | Fonte e resultado da análise da câmera superior (`CONFIRMADA`, `AUSENTE`, `INCONCLUSIVA`); `CenarioPosicao` no simulador (RF-027). | [AUTOR] (spec 015, delegada) | `sensor_posicao` |
+| Aguarda liberação da balança | `aguarda_liberacao_balanca` | Pesagem cancelada cujo caminhão ainda ocupa a balança (RN-020, spec 006 §6.4). | [AUTOR] (spec 015, delegada) | `pendente_saida` |
+| Situação desde | `situacao_desde` | Instante em que a operação entrou na situação atual; ordena a fila da balança. | [AUTOR] (spec 015, delegada) | `entrou_em` |
+| Ações disponíveis | `acoes_disponiveis` | Lista, calculada pelo backend, das ações manuais que a situação atual da pesagem permite; a tela não repete a tabela da spec 006 (spec 009). | [AUTOR] (spec 009, delegada) | `allowed_actions` |
+| Estado dos dispositivos | `EstadoDispositivos` | Último resultado conhecido da balança, de cada cancela, da posição e da identificação, com o modo de cada um (RF-023, spec 015). | [AUTOR] (spec 015, delegada) | `status_hardware` |
+| Imagem atual | `imagem_atual` | Imagem mais recente de uma câmera, mostrada no diagnóstico e não gravada (ADR-0005, RN-022). | [AUTOR] (spec 011, delegada) | `frame_ao_vivo` |
+| Liberação de caminhão | `liberacao_caminhao` | Saída, pedida por operador ou administrador, do caminhão de uma operação cancelada que ainda está na balança (RN-020). | [AUTOR] (spec 014, delegada) | `saida_forcada` |
+| Evento da operação | `evento_operacao` | Registro de histórico de uma pesagem: transição, rejeição, comando de cancela, intervenção, com responsável e motivo (RNF-010). | [AUTOR] (spec 014, delegada) | `log_operacao` |
+| Tentativa de acesso | `tentativa_acesso` | Contagem de falhas de login ou de autoatendimento por chave, guardada só como hash, para o limite de tentativas. | [AUTOR] (spec 014, delegada) | `rate_limit` |
+| Imagem da decisão | `imagem_decisao` | Imagem salva porque fundamentou uma decisão (RN-022); exclusão só apaga os bytes e registra quem e por quê. | [AUTOR] (spec 014, delegada) | `foto`, `snapshot` |
 | Autoatendimento | `autoatendimento` | Tela do motorista, sem login, para criar agendamento pela rede do pátio (RF-033). | [AUTOR] (ADR-0004) | `self_service`, `kiosk` |
 | Código da nota | `codigo_nota` | Código informado pelo motorista na descarga; é guardado sem verificar a autenticidade (RN-021). | [AUTOR] (ADR-0004) | `chave`, `nf` |
 | CPF mascarado | `cpf_mascarado` | CPF com os 3 primeiros dígitos e o verificador ocultos, para quem não pode ver o completo (spec 007). | [AUTOR] (spec 007) | `cpf_parcial` |

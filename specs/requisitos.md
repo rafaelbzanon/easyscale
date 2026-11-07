@@ -70,7 +70,7 @@ IDs são estáveis: nunca reutilizar; requisito descartado é marcado *Obsoleto*
 | RF-030 | O sistema deve suportar diferentes modelos de balança, cada um com seu protocolo implementado no sistema e escolhido por configuração. Por enquanto opera uma balança, com um caminhão sobre ela por vez e várias operações abertas ao mesmo tempo, no máximo uma por placa (spec 006, P-4, 2026-11-04). | [AUTOR] (spec 004, P-8, 2026-10-29; spec 006, P-4, 2026-11-04) — não consta no artigo | Backend | Q-01 (modelos e protocolos concretos) |
 | RF-031 | O controle de acesso deve permitir mais usuários e novos perfis com permissões diferentes. Perfis iniciais: `ADMINISTRADOR`, `OPERADOR` e `AUDITOR`. | [AUTOR] (Q-11, 2026-11-04) — não consta no artigo | Ambos | — |
 | RF-032 | O administrador deve poder criar e desativar usuários e redefinir senhas. | [AUTOR] (ADR-0004, 2026-11-04) — não consta no artigo | Ambos | — |
-| RF-033 | O motorista deve poder criar um agendamento em uma tela própria, sem login e sem operador, por totem ou pela rede do pátio. Na descarga, informa também o código da nota, digitado ou escaneado. | [AUTOR] (ADR-0004, 2026-11-04) — não consta no artigo | Ambos | Q-03 |
+| RF-033 | O motorista deve poder criar um agendamento em uma tela própria, sem login e sem operador, por totem ou pela rede do pátio. Na descarga, informa também o código da nota, digitado ou escaneado, obrigatório nessa tela (spec 013, 2026-11-07). | [AUTOR] (ADR-0004, 2026-11-04) — não consta no artigo | Ambos | Q-03 |
 | RF-034 | O sistema deve analisar as imagens das câmeras em tempo real durante a operação, mesmo sem nenhuma tela aberta, usando sempre a imagem mais recente. | [AUTOR] (ADR-0005, 2026-11-04) — não consta no artigo | Backend | Q-06, Q-07, D-05 |
 
 ---

@@ -1,7 +1,7 @@
 """Regras de dependência entre camadas (`CONVENCOES.md` P-4 a P-6).
 
 Spec 001 (esqueleto-backend), CA-001 e CA-005; spec 004 (camada-dispositivos),
-CA-016; spec 005 (pipeline-lpr), CA-021. Os imports são lidos com
+CA-016; spec 005 (pipeline-lpr), CA-021; spec 014 (persistencia), CA-017. Os imports são lidos com
 `ast`, sem executar o código analisado; imports dinâmicos (`importlib`) não
 são detectados.
 """
@@ -31,6 +31,10 @@ BIBLIOTECAS_RESTRITAS = {
     "serial": "pesagem.dispositivos",
     "cv2": "pesagem.lpr",
     "easyocr": "pesagem.lpr",
+    # Spec 014, CA-017: o banco só é acessado pela persistência.
+    "sqlalchemy": "pesagem.persistencia",
+    "psycopg": "pesagem.persistencia",
+    "alembic": "pesagem.persistencia",
 }
 
 
@@ -145,6 +149,13 @@ def test_codigo_real_respeita_regras_de_camada() -> None:
         ("pesagem/orquestracao/fluxo.py", "import cv2\n", "cv2", "P-6"),
         ("pesagem/dispositivos/camera.py", "import easyocr\n", "easyocr", "P-6"),
         (
+            "pesagem/orquestracao/fluxo.py",
+            "from sqlalchemy import text\n",
+            "sqlalchemy",
+            "P-6",
+        ),
+        ("pesagem/api/rotas.py", "import psycopg\n", "psycopg", "P-6"),
+        (
             "pesagem/dispositivos/balanca/simulada.py",
             "from pesagem.dominio.pesagem import aceitacao_peso\n",
             "pesagem.dominio.pesagem",
@@ -184,6 +195,10 @@ def test_detecta_import_proibido(
     [
         ("pesagem/dispositivos/balanca/serial.py", "import serial\n"),
         ("pesagem/lpr/leitor_easyocr.py", "import cv2\nimport easyocr\n"),
+        (
+            "pesagem/persistencia/banco.py",
+            "from sqlalchemy import text\nimport psycopg\n",
+        ),
         ("pesagem/dispositivos/balanca/interface.py", "from . import serial\n"),
         ("pesagem/dominio/operacao/maquina.py", "from ..erros import ErroDominio\n"),
     ],
@@ -230,3 +245,17 @@ def test_leitor_simulado_nunca_importa_easyocr() -> None:
     for nome in ("leitor_simulado.py", "pipeline.py", "leitor_placa.py"):
         importados = imports_do_arquivo(RAIZ_SRC, lpr / nome)
         assert not any(pertence(n, "easyocr") for n in importados), nome
+
+
+def test_orquestracao_nao_importa_bibliotecas_de_outras_camadas() -> None:
+    """Spec 015, CA-025: OpenCV, EasyOCR, serial e FastAPI ficam nas suas camadas."""
+    orquestracao = RAIZ_SRC / "pesagem" / "orquestracao"
+    arquivos = sorted(orquestracao.rglob("*.py"))
+    assert arquivos
+    for arquivo in arquivos:
+        importados = imports_do_arquivo(RAIZ_SRC, arquivo)
+        for proibido in ("cv2", "easyocr", "serial", "fastapi", "pesagem.api"):
+            assert not any(pertence(n, proibido) for n in importados), (
+                arquivo,
+                proibido,
+            )

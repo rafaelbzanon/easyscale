@@ -1,3 +1,7 @@
+-- HISTÓRICO (2026-11-07, spec 014): este arquivo não é mais atualizado.
+-- O esquema vigente está nas migrações do Alembic, em
+-- backend/src/pesagem/persistencia/migracoes/ (ADR-0006, CONVENCOES.md P-10).
+--
 -- Modelo de dados do TCC: Automação de Pesagem Rodoviária com LPR
 -- Gerado a partir do modelo adaptado do banco legado (banco.grc). PostgreSQL 12+
 -- Referência do modelo enquanto não há ferramenta de migração (CONVENCOES.md P-10, D-02).

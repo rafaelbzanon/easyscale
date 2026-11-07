@@ -182,6 +182,9 @@ _COMANDO_PENDENTE = {
     _Situacao.FECHANDO_SAIDA: _FECHAR_SAIDA,
 }
 
+# Público para a retomada da orquestração (spec 006 §7.2; spec 015 §7.1).
+COMANDO_PENDENTE = _COMANDO_PENDENTE
+
 # §6, tabela principal, sem `PESO_ACEITO`.
 _TRANSICOES = {
     (_Situacao.AGUARDANDO_BALANCA_INICIAL, _Evento.BALANCA_DISPONIVEL): (

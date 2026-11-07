@@ -1,14 +1,17 @@
 """Escolha do modo e das implementações (spec 004 §5.3, §6.4; RNF-003).
 
-`SIMULADO` é o padrão. `REAL` precisa ser escrito exatamente assim e, enquanto
-não houver implementação real (P-3), impede a partida: nunca cai para o
-simulado em silêncio.
+`SIMULADO` é o padrão. `REAL` precisa ser escrito exatamente assim e nunca cai
+para o simulado em silêncio: a balança real só sobe com um protocolo registrado
+(spec 029), e a cancela real ainda não existe.
 """
 
 from collections.abc import Callable, Mapping
+from datetime import datetime
 from enum import StrEnum
 
 from pesagem.dispositivos.balanca.interface import Balanca, ProtocoloBalanca
+from pesagem.dispositivos.balanca.protocolos import PROTOCOLOS
+from pesagem.dispositivos.balanca.serial import BalancaSerial, ParametrosSerial
 from pesagem.dispositivos.cancela.interface import Cancela
 from pesagem.dispositivos.erros import (
     ErroConfiguracaoDispositivo,
@@ -34,8 +37,10 @@ def selecionar_modo(valor: str | None) -> ModoDispositivo:
 def criar_balanca(
     modo: ModoDispositivo,
     nome_protocolo: str | None,
-    protocolos: Mapping[str, ProtocoloBalanca],
+    parametros: ParametrosSerial | None,
     criar_simulada: Callable[[], Balanca],
+    relogio: Callable[[], datetime],
+    protocolos: Mapping[str, Callable[[], ProtocoloBalanca]] = PROTOCOLOS,
 ) -> Balanca:
     if modo is ModoDispositivo.SIMULADO:
         return criar_simulada()
@@ -43,7 +48,9 @@ def criar_balanca(
         raise ErroConfiguracaoDispositivo(
             f"protocolo de balança ausente ou desconhecido: {nome_protocolo!r}"
         )
-    raise ErroModoIndisponivel("balança real ainda não implementada")
+    if parametros is None:
+        raise ErroConfiguracaoDispositivo("parâmetros seriais da balança ausentes")
+    return BalancaSerial(protocolos[nome_protocolo](), parametros, relogio)
 
 
 def criar_cancela(

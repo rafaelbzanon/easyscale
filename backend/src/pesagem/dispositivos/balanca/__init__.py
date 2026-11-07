@@ -1,1 +1,1 @@
-"""Balança: interface, política de tentativas e simulador (spec 004 §5.1)."""
+"""Balança: interface, política de tentativas, simulador (spec 004) e serial (spec 029)."""

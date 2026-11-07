@@ -105,9 +105,10 @@ def _compor(
         raise ErroModoIndisponivel("câmera real ainda não implementada (Q-06)")
     balanca = criar_balanca(
         modos[0],
-        None,
-        {},
+        o.protocolo_balanca,
+        o.serial_balanca,
         lambda: BalancaSimulada(CenarioBalanca.SEM_RESPOSTA, Decimal("0"), relogio),
+        relogio,
     )
     cancelas = {
         pedida: CancelaSimulada(CenarioCancela.CONFIRMADO, EstadoCancela.FECHADA)

@@ -225,13 +225,14 @@ def test_falha_quando_nao_ha_arquivos_python(tmp_path: Path) -> None:
         verificar_camadas(tmp_path)
 
 
-def test_simuladores_e_interfaces_nunca_importam_serial() -> None:
-    """Spec 004, CA-016: só a implementação real, futura, pode abrir porta serial."""
+def test_so_a_balanca_serial_importa_serial() -> None:
+    """Spec 004, CA-016; spec 029, CA-011: simuladores, interfaces e protocolos
+    não abrem porta; só `dispositivos/balanca/serial.py` importa `serial`."""
     dispositivos = RAIZ_SRC / "pesagem" / "dispositivos"
     arquivos = [
         arquivo
         for arquivo in sorted(dispositivos.rglob("*.py"))
-        if arquivo.name != "serial.py"
+        if arquivo != dispositivos / "balanca" / "serial.py"
     ]
     assert arquivos
     for arquivo in arquivos:

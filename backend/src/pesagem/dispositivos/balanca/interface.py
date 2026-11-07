@@ -55,6 +55,11 @@ class ProtocoloBalanca(Protocol):
         """Bytes do pedido de leitura, ou `None` se o modelo envia sem pedido."""
         ...
 
+    def extrair_quadro(self, recebido: bytes) -> bytes | None:
+        """Primeiro quadro completo em `recebido`, ignorando o que vem antes dele,
+        ou `None` se ainda não há quadro completo (spec 029 §5.1)."""
+        ...
+
     def interpretar_quadro(self, quadro: bytes) -> Decimal | None:
         """Peso em kg, ou `None` se o quadro está corrompido."""
         ...

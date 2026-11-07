@@ -66,7 +66,7 @@ Os nomes seguem o `CONVENCOES.md` §4.4 e §4.5.
 | Nome | Conteúdo |
 |---|---|
 | `Balanca` (interface) | `async def ler_peso() -> LeituraBalanca \| FalhaBalanca`. Uma chamada = **uma leitura**, com no máximo 2 tentativas (§6.2). A interface não depende do modelo (P-6, P-8). |
-| `ProtocoloBalanca` (interface) | O que muda de um modelo para outro, **sem I/O**: se é preciso enviar um pedido e qual é ele, e como interpretar um quadro recebido (peso ou quadro corrompido). Cada modelo é uma implementação em `dispositivos/balanca/protocolos/<modelo>.py`, testada com quadros reais em `docs/equipamentos/`. **Nenhum protocolo concreto existe ainda (Q-01).** |
+| `ProtocoloBalanca` (interface) | O que muda de um modelo para outro, **sem I/O**: se é preciso enviar um pedido e qual é ele, onde termina um quadro (`extrair_quadro(recebido) -> bytes \| None`: o primeiro quadro completo, ignorando o que vem antes, ou `None`; acrescentado em 2026-11-07, aprovado pelo autor em 2026-11-07, spec 029) e como interpretar um quadro recebido (peso ou quadro corrompido). Cada modelo é uma implementação em `dispositivos/balanca/protocolos/<modelo>.py`, testada com quadros reais em `docs/equipamentos/`. **Nenhum protocolo concreto existe ainda (Q-01).** |
 | `LeituraBalanca` | `peso_kg: Decimal`, `lida_em: datetime` (com fuso) e `tentativas: int` (1 ou 2). Tipo próprio da camada, convertido para `LeituraPeso` pela orquestração (P-6: `dispositivos` não importa `dominio`). |
 | `FalhaBalanca` | `motivo: MotivoFalhaBalanca` e `tentativas: int`. |
 | `MotivoFalhaBalanca` | `SEM_RESPOSTA` (nenhum quadro completo dentro do timeout), `QUADRO_CORROMPIDO` (dados recebidos, mas fora do formato) ou `DESCONECTADA` (a porta não está disponível). Ver P-4. |
@@ -154,7 +154,7 @@ Peso fora da faixa, negativo ou com muitas casas decimais é só um `peso_kg` co
 ### 6.4 Escolha das implementações
 
 - `SIMULADO` cria `BalancaSimulada` / `CancelaSimulada`.
-- `REAL` levanta `ErroModoIndisponivel` enquanto `BalancaSerial` e `CancelaSerial` não existirem. O modo real será adicionado depois que tudo estiver testado no simulado, numa spec própria (P-3). O sistema não inicia, e **nunca** cai para o simulado em silêncio.
+- `REAL` levanta `ErroModoIndisponivel` enquanto `BalancaSerial` e `CancelaSerial` não existirem. **Atualização 2026-11-07 (spec 029, aprovada pelo autor em 2026-11-07):** a `BalancaSerial` existe; a balança em `REAL` só é criada com um protocolo registrado, e o registro está vazio, então `REAL` continua recusado (`ErroConfiguracaoDispositivo`). A cancela em `REAL` continua com `ErroModoIndisponivel`. O modo real será adicionado depois que tudo estiver testado no simulado, numa spec própria (P-3). O sistema não inicia, e **nunca** cai para o simulado em silêncio.
 
 ## 7. Comportamento em falha
 
@@ -201,7 +201,7 @@ Só o `EstadoCancela` de cada cancela, lido do sensor. O estado da operação é
 | CA-012 | Se o sensor já mostra a posição pedida, nenhum comando é enviado e o resultado é `CONFIRMADO` com `tentativas=0`. |
 | CA-013 | Nenhuma chamada envia mais de 2 comandos, em nenhum cenário. |
 | CA-014 | `selecionar_modo(None)` e `selecionar_modo("")` → `SIMULADO`; `"SIMULADO"` → `SIMULADO`; `"REAL"` → `REAL`; `"real"`, `" REAL"`, `"SIMULADA"`, `"X"` → `ErroConfiguracaoDispositivo`. |
-| CA-015 | Criar dispositivos em `REAL` levanta `ErroModoIndisponivel`, e nenhum simulador é criado. |
+| CA-015 | Criar dispositivos em `REAL` levanta `ErroModoIndisponivel`, e nenhum simulador é criado. (Desde a spec 029, vale só para a cancela; a balança segue a CA-018 e a spec 029 CA-009.) |
 | CA-016 | O teste de arquitetura (spec 001) passa: `dominio` não importa `dispositivos`, e `dispositivos` não importa `dominio` (P-6); nenhum arquivo desta spec importa `serial`. |
 | CA-017 | Os simuladores satisfazem as interfaces assíncronas, e o mypy estrito confirma. |
 | CA-018 | Com `REAL`, um `PESAGEM_BALANCA_PROTOCOLO` ausente ou desconhecido levanta `ErroConfiguracaoDispositivo`. |

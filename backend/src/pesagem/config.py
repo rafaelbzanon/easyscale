@@ -10,6 +10,14 @@ from ipaddress import IPv4Network, IPv6Network, ip_network
 from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+from pesagem.dispositivos.balanca.serial import (
+    BAUD_RATES,
+    DATA_BITS,
+    PARIDADES,
+    STOP_BITS,
+    ParametrosSerial,
+)
+
 
 class ErroConfiguracao(Exception):
     """Variável ausente ou inválida. A mensagem cita o nome, nunca o valor."""
@@ -68,6 +76,9 @@ class ConfiguracaoOperacao:
     limite_sem_heartbeat_ms: int
     intervalo_peso_ms: int
     intervalo_imagem_ms: int
+    # Só em `PESAGEM_BALANCA_MODO=REAL` (spec 029 §6.3); em SIMULADO ficam vazios.
+    protocolo_balanca: str = ""
+    serial_balanca: ParametrosSerial | None = None
 
 
 @dataclass(frozen=True)
@@ -110,6 +121,32 @@ def _decimal(
     if not valor.is_finite():
         raise ErroConfiguracao(f"{nome} deve ser um número decimal")
     return valor
+
+
+def _escolha[T](ambiente: Mapping[str, str], nome: str, aceitos: Mapping[str, T]) -> T:
+    texto = _obrigatoria(ambiente, nome)
+    if texto not in aceitos:
+        raise ErroConfiguracao(f"{nome} não é um valor aceito pelo PySerial")
+    return aceitos[texto]
+
+
+def _serial_balanca(ambiente: Mapping[str, str]) -> ParametrosSerial | None:
+    """Spec 029 §6.3: sem valor padrão, e só lidos em REAL (mesma comparação exata
+    de `selecionar_modo`)."""
+    if ambiente.get("PESAGEM_BALANCA_MODO") != "REAL":
+        return None
+    um_dia_ms = 24 * 3600 * 1000
+    return ParametrosSerial(
+        porta=_obrigatoria(ambiente, "PESAGEM_BALANCA_PORTA"),
+        baud_rate=_escolha(ambiente, "PESAGEM_BALANCA_BAUD_RATE", BAUD_RATES),
+        paridade=_escolha(ambiente, "PESAGEM_BALANCA_PARIDADE", PARIDADES),
+        data_bits=_escolha(ambiente, "PESAGEM_BALANCA_DATA_BITS", DATA_BITS),
+        stop_bits=_escolha(ambiente, "PESAGEM_BALANCA_STOP_BITS", STOP_BITS),
+        timeout_ms=_inteiro(ambiente, "PESAGEM_BALANCA_TIMEOUT_MS", 1, um_dia_ms),
+        intervalo_tentativa_ms=_inteiro(
+            ambiente, "PESAGEM_BALANCA_INTERVALO_TENTATIVA_MS", 1, um_dia_ms
+        ),
+    )
 
 
 def ler_configuracao_operacao(ambiente: Mapping[str, str]) -> ConfiguracaoOperacao:
@@ -155,6 +192,9 @@ def ler_configuracao_operacao(ambiente: Mapping[str, str]) -> ConfiguracaoOperac
         limite_sem_heartbeat_ms=limite,
         intervalo_peso_ms=ms("PESAGEM_TEMPO_REAL_INTERVALO_PESO_MS"),
         intervalo_imagem_ms=ms("PESAGEM_TEMPO_REAL_INTERVALO_IMAGEM_MS"),
+        # O nome é conferido no registro por `criar_balanca` (spec 029 §7).
+        protocolo_balanca=ambiente.get("PESAGEM_BALANCA_PROTOCOLO", ""),
+        serial_balanca=_serial_balanca(ambiente),
     )
 
 

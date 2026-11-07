@@ -6,6 +6,7 @@ from decimal import Decimal
 import pytest
 
 from pesagem.dispositivos.balanca.interface import Balanca, ProtocoloBalanca
+from pesagem.dispositivos.balanca.serial import BalancaSerial, ParametrosSerial
 from pesagem.dispositivos.balanca.simulada import BalancaSimulada, CenarioBalanca
 from pesagem.dispositivos.cancela.interface import Cancela, EstadoCancela
 from pesagem.dispositivos.cancela.simulada import CancelaSimulada, CenarioCancela
@@ -28,11 +29,19 @@ class ProtocoloDeTeste:
     def montar_pedido(self) -> bytes | None:
         return None
 
+    def extrair_quadro(self, recebido: bytes) -> bytes | None:
+        return None
+
     def interpretar_quadro(self, quadro: bytes) -> Decimal | None:
         return None
 
 
-PROTOCOLOS: dict[str, ProtocoloBalanca] = {"MODELO_TESTE": ProtocoloDeTeste()}
+PROTOCOLOS: dict[str, type[ProtocoloBalanca]] = {"MODELO_TESTE": ProtocoloDeTeste}
+SERIAL = ParametrosSerial("/dev/pesagem-nao-existe", 9600, "N", 8, 1, 100, 10)
+
+
+def relogio() -> datetime:
+    return datetime.now(UTC)
 
 
 class Fabrica:
@@ -78,18 +87,27 @@ def test_modo_invalido_levanta_erro(valor: str) -> None:
 def test_simulado_cria_os_simuladores() -> None:
     """§6.4."""
     fabrica = Fabrica()
-    balanca = criar_balanca(ModoDispositivo.SIMULADO, None, {}, fabrica.balanca)
+    balanca = criar_balanca(
+        ModoDispositivo.SIMULADO, None, None, fabrica.balanca, relogio, PROTOCOLOS
+    )
     cancela = criar_cancela(ModoDispositivo.SIMULADO, fabrica.cancela)
     assert isinstance(balanca, BalancaSimulada)
     assert isinstance(cancela, CancelaSimulada)
     assert fabrica.criados == 2
 
 
-def test_real_e_indisponivel_e_nao_cria_simulador() -> None:
-    """CA-015 (P-3: nunca cai para o simulado)."""
+def test_real_cria_a_balanca_serial_sem_abrir_a_porta() -> None:
+    """Spec 029 §6.4 (P-3: nunca cai para o simulado). A porta só abre na leitura."""
     fabrica = Fabrica()
-    with pytest.raises(ErroModoIndisponivel):
-        criar_balanca(ModoDispositivo.REAL, "MODELO_TESTE", PROTOCOLOS, fabrica.balanca)
+    balanca = criar_balanca(
+        ModoDispositivo.REAL,
+        "MODELO_TESTE",
+        SERIAL,
+        fabrica.balanca,
+        relogio,
+        PROTOCOLOS,
+    )
+    assert isinstance(balanca, BalancaSerial)
     with pytest.raises(ErroModoIndisponivel):
         criar_cancela(ModoDispositivo.REAL, fabrica.cancela)
     assert fabrica.criados == 0
@@ -100,8 +118,33 @@ def test_real_com_protocolo_ausente_ou_desconhecido(nome: str | None) -> None:
     """CA-018."""
     fabrica = Fabrica()
     with pytest.raises(ErroConfiguracaoDispositivo):
-        criar_balanca(ModoDispositivo.REAL, nome, PROTOCOLOS, fabrica.balanca)
+        criar_balanca(
+            ModoDispositivo.REAL, nome, SERIAL, fabrica.balanca, relogio, PROTOCOLOS
+        )
     assert fabrica.criados == 0
+
+
+def test_registro_vazio_recusa_real() -> None:
+    """Spec 029 CA-009: sem protocolo de modelo, REAL não sobe."""
+    fabrica = Fabrica()
+    with pytest.raises(ErroConfiguracaoDispositivo):
+        criar_balanca(
+            ModoDispositivo.REAL, "MODELO_TESTE", SERIAL, fabrica.balanca, relogio
+        )
+    assert fabrica.criados == 0
+
+
+def test_real_sem_parametros_seriais() -> None:
+    fabrica = Fabrica()
+    with pytest.raises(ErroConfiguracaoDispositivo):
+        criar_balanca(
+            ModoDispositivo.REAL,
+            "MODELO_TESTE",
+            None,
+            fabrica.balanca,
+            relogio,
+            PROTOCOLOS,
+        )
 
 
 def test_erros_derivam_de_erro_dispositivo() -> None:

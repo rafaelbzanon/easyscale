@@ -1,0 +1,14 @@
+# Fora da imagem: ambiente local, caches, testes e qualquer segredo (.env).
+.venv/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+tests/
+.env
+.env.*
+Dockerfile
+.dockerignore

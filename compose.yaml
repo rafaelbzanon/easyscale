@@ -1,0 +1,165 @@
+# Execução do sistema em contêineres (spec 027, INT-001). Modo SIMULADO.
+# Uso: cp .env.exemplo .env && docker compose up --build
+name: pesagem
+
+x-banco: &banco
+  image: postgres:18.6-alpine # a mesma dos testes de integração (ADR-0006 §3.1)
+  environment:
+    POSTGRES_USER: ${PESAGEM_BANCO_USUARIO:?copie .env.exemplo para .env}
+    POSTGRES_DB: ${PESAGEM_BANCO_NOME:?copie .env.exemplo para .env}
+    # Só vale na criação do volume. Mudar depois no .env não troca a senha do banco.
+    POSTGRES_PASSWORD: ${PESAGEM_BANCO_SENHA:?copie .env.exemplo para .env}
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+    interval: 5s
+    timeout: 3s
+    retries: 10
+
+services:
+  # --- Execução (sem perfil): sobe com `docker compose up` ---
+
+  db:
+    <<: *banco
+    volumes:
+      - pesagem-dados-db:/var/lib/postgresql
+    restart: unless-stopped
+    networks: [pesagem]
+    # Sem `ports`: o banco só é alcançável pela rede do compose.
+
+  # Execução única. O backend só sobe depois que ela termina bem (spec 025 §4.4).
+  migracao:
+    build: ./backend
+    image: pesagem-backend
+    command: ["alembic", "upgrade", "head"]
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    networks: [pesagem]
+
+  backend:
+    build: ./backend
+    image: pesagem-backend
+    # Um processo só (ADR-0002). O Caddy do `frontend` é o único proxy: só dele o
+    # uvicorn aceita X-Forwarded-For, senão a barreira de rede do autoatendimento
+    # (spec 013 §6.1) veria sempre o endereço do proxy.
+    command:
+      - uvicorn
+      - --factory
+      - pesagem.main:criar_aplicacao
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --proxy-headers
+      - --forwarded-allow-ips
+      - ${PESAGEM_IP_PROXY:-172.28.0.10}
+    env_file: .env
+    volumes:
+      - pesagem-modelos-ocr:/modelos-ocr:ro # baixar: spec 025 §4.3
+    depends_on:
+      migracao:
+        condition: service_completed_successfully
+    # Sem rota de saúde (spec 025 P-1): 401 em /api/sessoes/atual sem cookie = vivo.
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - |
+          import sys, urllib.request, urllib.error
+          try:
+              urllib.request.urlopen("http://127.0.0.1:8000/api/sessoes/atual", timeout=3)
+          except urllib.error.HTTPError as e:
+              sys.exit(0 if e.code == 401 else 1)
+          sys.exit(1)
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+    networks: [pesagem]
+    # Sem `ports`: a API só sai pelo frontend, com HTTPS.
+
+  frontend:
+    build: ./frontend
+    image: pesagem-frontend
+    environment:
+      PESAGEM_GERAL_URL_BACKEND: http://backend:8000
+      PESAGEM_HTTPS_HOST: ${PESAGEM_HTTPS_HOST:-localhost}
+      PESAGEM_HTTPS_TLS: ${PESAGEM_HTTPS_TLS:-internal}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - pesagem-certificados:/data
+    ports:
+      - ${PESAGEM_HTTPS_ENDERECO:-127.0.0.1}:${PESAGEM_HTTPS_PORTA:-8443}:8443
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--no-check-certificate", "-O", "/dev/null", "https://localhost:8443/"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    # O binário do Caddy precisa de NET_BIND_SERVICE (spec 026 §4.5).
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: ["no-new-privileges:true"]
+    read_only: true
+    tmpfs: [/tmp]
+    restart: unless-stopped
+    networks:
+      pesagem:
+        ipv4_address: ${PESAGEM_IP_PROXY:-172.28.0.10}
+
+  # --- Perfil dev: banco para o backend e o `npm run dev` rodando na máquina ---
+  # `docker compose --profile dev up -d db-dev`. Volume próprio: não divide dados com o `db`.
+  db-dev:
+    <<: *banco
+    profiles: [dev]
+    volumes:
+      - pesagem-dados-db-dev:/var/lib/postgresql
+    ports:
+      - 127.0.0.1:${PESAGEM_BANCO_PORTA_DEV:-5432}:5432
+
+  # --- Perfil teste: banco descartável, sem volume (some ao parar) ---
+  # `docker compose --profile teste up -d db-teste`. A suíte pytest não usa este: ela sobe o seu.
+  db-teste:
+    <<: *banco
+    profiles: [teste]
+    tmpfs: [/var/lib/postgresql]
+    ports:
+      - 127.0.0.1:5433:5432
+
+  # --- Perfil hardware-real: BLOQUEADO ---
+  # O modo REAL não existe (Q-01, Q-06): o backend recusa a partida (ErroModoIndisponivel).
+  # Este serviço só marca o lugar e sai com erro. Quando houver implementação real e spec,
+  # ele ganha `devices` (ex.: /dev/ttyUSB0:/dev/ttyUSB0) e as variáveis do modo REAL.
+  # Nada é mapeado hoje (R-05, Q-07).
+  backend-hardware-real:
+    image: pesagem-backend
+    profiles: [hardware-real]
+    command:
+      - sh
+      - -c
+      - 'echo "hardware-real bloqueado: modo REAL indisponivel (Q-01, spec 027 §4.5)" >&2; exit 1'
+    restart: "no"
+
+volumes:
+  pesagem-dados-db:
+    name: pesagem-dados-db
+  pesagem-dados-db-dev:
+    name: pesagem-dados-db-dev
+  pesagem-modelos-ocr:
+    name: pesagem-modelos-ocr
+  pesagem-certificados:
+    name: pesagem-certificados
+
+networks:
+  pesagem:
+    ipam:
+      config:
+        - subnet: 172.28.0.0/24

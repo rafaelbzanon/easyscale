@@ -1,0 +1,42 @@
+# Caddy do serviço `frontend` com HTTPS (spec 027). Substitui o Caddyfile da imagem
+# (spec 026 §4.3), que fala só HTTP. Os blocos de /api e do fallback são os mesmos dela.
+# Mudou lá, mude aqui.
+{
+	admin off
+	https_port 8443
+	# Sem redirecionamento: não há porta 80 publicada.
+	auto_https disable_redirects
+	# Só a porta TCP é publicada: sem HTTP/3, o Caddy não anuncia h3 (alt-svc).
+	servers {
+		protocols h1 h2
+	}
+}
+
+{$PESAGEM_HTTPS_HOST:localhost}:8443 {
+	# "internal" = CA interna do Caddy (padrão). Certificado próprio: ver spec 027 §4.3.
+	tls {$PESAGEM_HTTPS_TLS:internal}
+
+	handle /api/* {
+		# O Caddy sobrescreve o X-Forwarded-For com o endereço de quem conectou: o
+		# backend só confia nesse cabeçalho vindo daqui (spec 013 §6.1).
+		# flush_interval -1 e nada de `encode`: os eventos (SSE) saem sem atraso (ADR-0005).
+		reverse_proxy {$PESAGEM_GERAL_URL_BACKEND} {
+			flush_interval -1
+		}
+	}
+	handle {
+		root * /srv
+		encode zstd gzip
+		header ?Cache-Control no-cache
+		@com_hash {
+			path /assets/*
+			file {
+				root /srv
+				try_files {path}
+			}
+		}
+		header @com_hash Cache-Control "public, max-age=31536000, immutable"
+		try_files {path} /index.html
+		file_server
+	}
+}

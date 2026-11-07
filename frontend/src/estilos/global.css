@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/* Sinalização de segurança do pátio (frontend/PRODUCT.md, surface brief). Cor só com função. */
+@theme {
+  --color-*: initial;
+  --color-concreto: #eeedea;
+  --color-painel: #e3e2de;
+  --color-fio: #9c9a94;
+  --color-tinta: #1b1d20;
+  --color-suave: #4a4d52;
+  --color-asfalto: #23262a;
+  --color-claro: #f2f1ee;
+  --color-amarelo: #f2c200;
+  --color-vermelho: #b3261e;
+  --color-verde: #1e6b3a;
+  --color-azul: #1d4f91;
+
+  --font-sans:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Liberation Sans", sans-serif;
+  --font-mono:
+    ui-monospace, "SF Mono", "Cascadia Mono", "DejaVu Sans Mono", "Liberation Mono", monospace;
+}
+
+@layer base {
+  html {
+    background: var(--color-concreto);
+    color: var(--color-tinta);
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection {
+    background: var(--color-amarelo);
+    color: var(--color-tinta);
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-azul);
+    outline-offset: 2px;
+  }
+  header :focus-visible {
+    outline-color: var(--color-amarelo);
+  }
+  a {
+    text-underline-offset: 0.2em;
+  }
+}
+
+/* Faixa zebrada: só no bloqueio por tela desatualizada (spec 016 §6.5). */
+.faixa-zebrada {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--color-amarelo) 0 14px,
+    var(--color-tinta) 14px 28px
+  );
+}

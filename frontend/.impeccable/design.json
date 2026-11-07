@@ -1,0 +1,386 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-07T18:30:22+00:00",
+  "title": "Design System: EasyScale",
+  "extensions": {
+    "colorMeta": {
+      "concreto": {
+        "role": "neutral",
+        "displayName": "Concreto",
+        "canonical": "#eeedea",
+        "tonalRamp": [
+          "oklch(15% 0.004 91.4)",
+          "oklch(25% 0.004 91.4)",
+          "oklch(35% 0.004 91.4)",
+          "oklch(45% 0.004 91.4)",
+          "oklch(55% 0.004 91.4)",
+          "oklch(65% 0.004 91.4)",
+          "oklch(80% 0.004 91.4)",
+          "oklch(95% 0.004 91.4)"
+        ]
+      },
+      "painel": {
+        "role": "neutral",
+        "displayName": "Painel",
+        "canonical": "#e3e2de",
+        "tonalRamp": [
+          "oklch(15% 0.005 95.1)",
+          "oklch(25% 0.005 95.1)",
+          "oklch(35% 0.005 95.1)",
+          "oklch(45% 0.005 95.1)",
+          "oklch(55% 0.005 95.1)",
+          "oklch(65% 0.005 95.1)",
+          "oklch(80% 0.005 95.1)",
+          "oklch(95% 0.005 95.1)"
+        ]
+      },
+      "fio": {
+        "role": "neutral",
+        "displayName": "Fio",
+        "canonical": "#9c9a94",
+        "tonalRamp": [
+          "oklch(15% 0.009 91.5)",
+          "oklch(25% 0.009 91.5)",
+          "oklch(35% 0.009 91.5)",
+          "oklch(45% 0.009 91.5)",
+          "oklch(55% 0.009 91.5)",
+          "oklch(65% 0.009 91.5)",
+          "oklch(80% 0.009 91.5)",
+          "oklch(95% 0.009 91.5)"
+        ]
+      },
+      "tinta": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "#1b1d20",
+        "tonalRamp": [
+          "oklch(15% 0.007 258.4)",
+          "oklch(25% 0.007 258.4)",
+          "oklch(35% 0.007 258.4)",
+          "oklch(45% 0.007 258.4)",
+          "oklch(55% 0.007 258.4)",
+          "oklch(65% 0.007 258.4)",
+          "oklch(80% 0.007 258.4)",
+          "oklch(95% 0.007 258.4)"
+        ]
+      },
+      "suave": {
+        "role": "neutral",
+        "displayName": "Tinta Suave",
+        "canonical": "#4a4d52",
+        "tonalRamp": [
+          "oklch(15% 0.009 260.7)",
+          "oklch(25% 0.009 260.7)",
+          "oklch(35% 0.009 260.7)",
+          "oklch(45% 0.009 260.7)",
+          "oklch(55% 0.009 260.7)",
+          "oklch(65% 0.009 260.7)",
+          "oklch(80% 0.009 260.7)",
+          "oklch(95% 0.009 260.7)"
+        ]
+      },
+      "asfalto": {
+        "role": "neutral",
+        "displayName": "Asfalto",
+        "canonical": "#23262a",
+        "tonalRamp": [
+          "oklch(15% 0.009 255.6)",
+          "oklch(25% 0.009 255.6)",
+          "oklch(35% 0.009 255.6)",
+          "oklch(45% 0.009 255.6)",
+          "oklch(55% 0.009 255.6)",
+          "oklch(65% 0.009 255.6)",
+          "oklch(80% 0.009 255.6)",
+          "oklch(95% 0.009 255.6)"
+        ]
+      },
+      "claro": {
+        "role": "neutral",
+        "displayName": "Claro",
+        "canonical": "#f2f1ee",
+        "tonalRamp": [
+          "oklch(15% 0.004 91.4)",
+          "oklch(25% 0.004 91.4)",
+          "oklch(35% 0.004 91.4)",
+          "oklch(45% 0.004 91.4)",
+          "oklch(55% 0.004 91.4)",
+          "oklch(65% 0.004 91.4)",
+          "oklch(80% 0.004 91.4)",
+          "oklch(95% 0.004 91.4)"
+        ]
+      },
+      "amarelo": {
+        "role": "secondary",
+        "displayName": "Amarelo Demarcação",
+        "canonical": "#f2c200",
+        "tonalRamp": [
+          "oklch(15% 0.170 90.6)",
+          "oklch(25% 0.170 90.6)",
+          "oklch(35% 0.170 90.6)",
+          "oklch(45% 0.170 90.6)",
+          "oklch(55% 0.170 90.6)",
+          "oklch(65% 0.170 90.6)",
+          "oklch(80% 0.170 90.6)",
+          "oklch(95% 0.170 90.6)"
+        ]
+      },
+      "vermelho": {
+        "role": "secondary",
+        "displayName": "Vermelho Parar",
+        "canonical": "#b3261e",
+        "tonalRamp": [
+          "oklch(15% 0.178 28.7)",
+          "oklch(25% 0.178 28.7)",
+          "oklch(35% 0.178 28.7)",
+          "oklch(45% 0.178 28.7)",
+          "oklch(55% 0.178 28.7)",
+          "oklch(65% 0.178 28.7)",
+          "oklch(80% 0.178 28.7)",
+          "oklch(95% 0.178 28.7)"
+        ]
+      },
+      "verde": {
+        "role": "tertiary",
+        "displayName": "Verde Liberado",
+        "canonical": "#1e6b3a",
+        "tonalRamp": [
+          "oklch(15% 0.108 151.5)",
+          "oklch(25% 0.108 151.5)",
+          "oklch(35% 0.108 151.5)",
+          "oklch(45% 0.108 151.5)",
+          "oklch(55% 0.108 151.5)",
+          "oklch(65% 0.108 151.5)",
+          "oklch(80% 0.108 151.5)",
+          "oklch(95% 0.108 151.5)"
+        ]
+      },
+      "azul": {
+        "role": "primary",
+        "displayName": "Azul Ação",
+        "canonical": "#1d4f91",
+        "tonalRamp": [
+          "oklch(15% 0.121 256.8)",
+          "oklch(25% 0.121 256.8)",
+          "oklch(35% 0.121 256.8)",
+          "oklch(45% 0.121 256.8)",
+          "oklch(55% 0.121 256.8)",
+          "oklch(65% 0.121 256.8)",
+          "oklch(80% 0.121 256.8)",
+          "oklch(95% 0.121 256.8)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline-totem": {
+        "displayName": "Headline do totem",
+        "purpose": "Título da tela do motorista."
+      },
+      "marca-totem": {
+        "displayName": "Marca do totem",
+        "purpose": "EasyScale no cabeçalho grande do totem."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Título da página interna."
+      },
+      "body-totem": {
+        "displayName": "Body do totem",
+        "purpose": "Todo texto e botão do totem."
+      },
+      "marca": {
+        "displayName": "Marca",
+        "purpose": "EasyScale no cabeçalho interno."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Texto corrido."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Botões e dados do usuário no cabeçalho."
+      },
+      "label-estado": {
+        "displayName": "Label de estado",
+        "purpose": "Palavra de estado em caixa alta dentro da placa."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "transicao-cor",
+        "value": "150ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Troca de cor de fundo e borda no hover dos botões."
+      }
+    ],
+    "breakpoints": [],
+    "focus": {
+      "value": "3px solid var(--color-azul); outline-offset: 2px",
+      "noCabecalho": "outline-color: var(--color-amarelo)"
+    },
+    "texturas": [
+      {
+        "name": "faixa-zebrada",
+        "value": "repeating-linear-gradient(-45deg, var(--color-amarelo) 0 14px, var(--color-tinta) 14px 28px)",
+        "purpose": "Só sobre a área de ações bloqueada por tela desatualizada."
+      }
+    ],
+    "fontes": {
+      "mono": {
+        "value": "ui-monospace, 'SF Mono', 'Cascadia Mono', 'DejaVu Sans Mono', 'Liberation Mono', monospace",
+        "status": "declarada, ainda sem uso"
+      }
+    }
+  },
+  "components": [
+    {
+      "name": "Botão de ação",
+      "kind": "button",
+      "refersTo": "botao-acao",
+      "description": "A ação disponível agora. Único uso de azul em botão.",
+      "html": "<button class=\"ds-btn ds-btn-acao\" type=\"button\">Pedir nova tentativa</button>",
+      "css": ".ds-btn { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Liberation Sans', sans-serif; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border: 1px solid; border-radius: 0; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1), border-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn:focus-visible { outline: 3px solid var(--color-azul); outline-offset: 2px; } .ds-btn-acao { background: var(--color-azul); color: var(--color-claro); border-color: var(--color-azul); } .ds-btn-acao:hover { background: var(--color-tinta); border-color: var(--color-tinta); }"
+    },
+    {
+      "name": "Botão neutro",
+      "kind": "button",
+      "refersTo": "botao-neutro",
+      "description": "Toda ação que não é a principal. Herda a cor do contexto.",
+      "html": "<button class=\"ds-btn ds-btn-neutro\" type=\"button\">Tentar de novo</button>",
+      "css": ".ds-btn { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Liberation Sans', sans-serif; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border: 1px solid; border-radius: 0; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1), border-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn:focus-visible { outline: 3px solid var(--color-azul); outline-offset: 2px; } .ds-btn-neutro { background: transparent; color: var(--color-tinta); border-color: currentColor; } .ds-btn-neutro:hover { background: color-mix(in srgb, currentColor 15%, transparent); }"
+    },
+    {
+      "name": "Botão desabilitado",
+      "kind": "button",
+      "refersTo": "botao-desabilitado",
+      "description": "Ação indisponível. Continua visível.",
+      "html": "<button class=\"ds-btn ds-btn-off\" type=\"button\" disabled>Liberar entrada</button>",
+      "css": ".ds-btn { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Liberation Sans', sans-serif; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border: 1px solid; border-radius: 0; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1), border-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn:focus-visible { outline: 3px solid var(--color-azul); outline-offset: 2px; } .ds-btn-off, .ds-btn-off:hover { background: var(--color-painel); color: var(--color-suave); border-color: var(--color-fio); cursor: not-allowed; }"
+    },
+    {
+      "name": "Cabeçalho",
+      "kind": "nav",
+      "refersTo": "cabecalho",
+      "description": "Asfalto com faixa amarela de 4px, marca, placa de modo e usuário.",
+      "html": "<header class=\"ds-cab\"><p class=\"ds-cab-marca\">EasyScale</p><p class=\"ds-placa ds-placa-sim\"><svg viewBox=\"0 0 16 16\" width=\"1em\" height=\"1em\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"8\" r=\"6.5\" fill=\"var(--color-azul)\"/></svg><strong>SIMULADO</strong><span>· nenhum equipamento físico</span></p><span class=\"ds-cab-user\">Maria Souza <span class=\"ds-cab-perfil\">(Operador)</span></span><button class=\"ds-btn ds-btn-neutro\" type=\"button\">Sair</button></header>",
+      "css": ".ds-btn { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Liberation Sans', sans-serif; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border: 1px solid; border-radius: 0; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1), border-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn:focus-visible { outline: 3px solid var(--color-azul); outline-offset: 2px; }.ds-placa { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Liberation Sans', sans-serif; display: inline-flex; align-items: center; gap: 8px; border: 2px solid; border-radius: 0; padding: 4px 12px; font-size: 0.875rem; margin: 0; } .ds-placa strong { font-weight: 700; letter-spacing: 0.025em; } .ds-cab { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Liberation Sans', sans-serif; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; padding: 12px 16px; background: var(--color-asfalto); color: var(--color-claro); border-bottom: 4px solid var(--color-amarelo); } .ds-cab-marca { margin: 0; font-size: 1.125rem; font-weight: 700; letter-spacing: -0.025em; } .ds-cab-user { margin-left: auto; font-size: 0.875rem; } .ds-cab-perfil { color: color-mix(in srgb, var(--color-claro) 80%, transparent); } .ds-cab .ds-btn-neutro { color: var(--color-claro); } .ds-cab .ds-btn-neutro:hover { background: color-mix(in srgb, currentColor 15%, transparent); } .ds-cab .ds-btn:focus-visible { outline-color: var(--color-amarelo); } .ds-placa-sim { background: var(--color-claro); color: var(--color-tinta); border-color: var(--color-azul); }"
+    },
+    {
+      "name": "Placa de modo REAL",
+      "kind": "custom",
+      "refersTo": "placa-modo-real",
+      "description": "Equipamento físico ligado. A placa mais forte da tela.",
+      "html": "<p class=\"ds-placa ds-placa-real\"><svg viewBox=\"0 0 16 16\" width=\"1em\" height=\"1em\" aria-hidden=\"true\"><path d=\"M8 1.5 15 14.5H1Z\" fill=\"var(--color-amarelo)\" stroke=\"var(--color-tinta)\" stroke-width=\"1.2\"/></svg><strong>REAL</strong><span>· equipamento físico: balança, cancela de entrada</span></p>",
+      "css": ".ds-placa { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Liberation Sans', sans-serif; display: inline-flex; align-items: center; gap: 8px; border: 2px solid; border-radius: 0; padding: 4px 12px; font-size: 0.875rem; margin: 0; } .ds-placa strong { font-weight: 700; letter-spacing: 0.025em; } .ds-placa-real { background: var(--color-vermelho); color: var(--color-claro); border-color: var(--color-vermelho); }"
+    },
+    {
+      "name": "Placa de modo desconhecido",
+      "kind": "custom",
+      "refersTo": "placa-modo-desconhecido",
+      "description": "Dado ausente ou inesperado. Nunca vira SIMULADO.",
+      "html": "<p class=\"ds-placa ds-placa-desc\"><svg viewBox=\"0 0 16 16\" width=\"1em\" height=\"1em\" aria-hidden=\"true\"><path d=\"M8 1.5 15 14.5H1Z\" fill=\"var(--color-amarelo)\" stroke=\"var(--color-tinta)\" stroke-width=\"1.2\"/></svg><strong>MODO DESCONHECIDO</strong></p>",
+      "css": ".ds-placa { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Liberation Sans', sans-serif; display: inline-flex; align-items: center; gap: 8px; border: 2px solid; border-radius: 0; padding: 4px 12px; font-size: 0.875rem; margin: 0; } .ds-placa strong { font-weight: 700; letter-spacing: 0.025em; } .ds-placa-desc { background: var(--color-amarelo); color: var(--color-tinta); border-color: var(--color-tinta); }"
+    },
+    {
+      "name": "Área de ações bloqueada",
+      "kind": "custom",
+      "refersTo": "aviso-bloqueio",
+      "description": "Tela desatualizada: faixa zebrada sobre os botões, que ficam desabilitados.",
+      "html": "<section class=\"ds-acoes\" aria-label=\"Ações\"><div class=\"ds-zebra\" role=\"alert\"><p class=\"ds-aviso\"><svg viewBox=\"0 0 16 16\" width=\"1em\" height=\"1em\" aria-hidden=\"true\"><path d=\"M8 1.5 15 14.5H1Z\" fill=\"var(--color-amarelo)\" stroke=\"var(--color-tinta)\" stroke-width=\"1.2\"/></svg>Tela desatualizada. Ações bloqueadas até reconectar.</p></div><fieldset class=\"ds-acoes-botoes\" disabled><button class=\"ds-btn ds-btn-off\" type=\"button\">Pedir nova tentativa</button><button class=\"ds-btn ds-btn-off\" type=\"button\">Liberar caminhão</button></fieldset></section>",
+      "css": ".ds-btn { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Liberation Sans', sans-serif; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border: 1px solid; border-radius: 0; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1), border-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn:focus-visible { outline: 3px solid var(--color-azul); outline-offset: 2px; } .ds-acoes { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Liberation Sans', sans-serif; border-top: 1px solid var(--color-fio); } .ds-zebra { display: flex; justify-content: center; padding: 8px 0; background: repeating-linear-gradient(-45deg, var(--color-amarelo) 0 14px, var(--color-tinta) 14px 28px); } .ds-aviso { display: flex; align-items: center; gap: 8px; margin: 0; padding: 4px 12px; background: var(--color-amarelo); color: var(--color-tinta); font-size: 0.875rem; font-weight: 700; } .ds-acoes-botoes { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 0; margin: 0; border: 0; } .ds-btn-off { background: var(--color-painel); color: var(--color-suave); border-color: var(--color-fio); cursor: not-allowed; }"
+    },
+    {
+      "name": "Mensagem de erro",
+      "kind": "card",
+      "refersTo": "mensagem-erro",
+      "description": "Falha com nome e lugar fixos: círculo cortado, texto vermelho, nova tentativa.",
+      "html": "<div class=\"ds-erro\" role=\"alert\"><svg viewBox=\"0 0 16 16\" width=\"1em\" height=\"1em\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"8\" r=\"6.2\" fill=\"none\" stroke=\"var(--color-vermelho)\" stroke-width=\"2.4\"/><path d=\"M3.6 12.4 12.4 3.6\" stroke=\"var(--color-vermelho)\" stroke-width=\"2.4\"/></svg><p class=\"ds-erro-texto\">Sem resposta válida do servidor.</p><button class=\"ds-btn ds-btn-neutro\" type=\"button\">Tentar de novo</button></div>",
+      "css": ".ds-btn { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Liberation Sans', sans-serif; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border: 1px solid; border-radius: 0; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1), border-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn:focus-visible { outline: 3px solid var(--color-azul); outline-offset: 2px; } .ds-erro { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Liberation Sans', sans-serif; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px; background: var(--color-claro); border: 1px solid var(--color-vermelho); } .ds-erro-texto { margin: 0; font-weight: 600; color: var(--color-vermelho); } .ds-btn-neutro { background: transparent; color: var(--color-tinta); border-color: currentColor; } .ds-btn-neutro:hover { background: color-mix(in srgb, currentColor 15%, transparent); }"
+    },
+    {
+      "name": "Símbolos de estado",
+      "kind": "custom",
+      "refersTo": "simbolo-estado",
+      "description": "Formas ISO 7010, sempre ao lado da palavra: atenção, falha, ok, informação.",
+      "html": "<p class=\"ds-simbolos\"><span><svg viewBox=\"0 0 16 16\" width=\"1em\" height=\"1em\" aria-hidden=\"true\"><path d=\"M8 1.5 15 14.5H1Z\" fill=\"var(--color-amarelo)\" stroke=\"var(--color-tinta)\" stroke-width=\"1.2\"/></svg> Atenção</span><span><svg viewBox=\"0 0 16 16\" width=\"1em\" height=\"1em\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"8\" r=\"6.2\" fill=\"none\" stroke=\"var(--color-vermelho)\" stroke-width=\"2.4\"/><path d=\"M3.6 12.4 12.4 3.6\" stroke=\"var(--color-vermelho)\" stroke-width=\"2.4\"/></svg> Falha</span><span><svg viewBox=\"0 0 16 16\" width=\"1em\" height=\"1em\" aria-hidden=\"true\"><rect x=\"2\" y=\"2\" width=\"12\" height=\"12\" fill=\"var(--color-verde)\"/></svg> OK</span><span><svg viewBox=\"0 0 16 16\" width=\"1em\" height=\"1em\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"8\" r=\"6.5\" fill=\"var(--color-azul)\"/></svg> Informação</span></p>",
+      "css": ".ds-simbolos { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Liberation Sans', sans-serif; display: flex; gap: 24px; margin: 0; color: var(--color-tinta); font-size: 0.875rem; font-weight: 700; } .ds-simbolos span { display: inline-flex; align-items: center; gap: 8px; }"
+    },
+    {
+      "name": "Botão do totem",
+      "kind": "button",
+      "refersTo": "botao-totem",
+      "description": "Alvo de toque do totem: 64px de altura mínima, texto de 1.25rem.",
+      "html": "<button class=\"ds-btn ds-btn-acao ds-btn-totem\" type=\"button\">Agendar pesagem</button>",
+      "css": ".ds-btn { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Liberation Sans', sans-serif; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border: 1px solid; border-radius: 0; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1), border-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn:focus-visible { outline: 3px solid var(--color-azul); outline-offset: 2px; } .ds-btn-acao { background: var(--color-azul); color: var(--color-claro); border-color: var(--color-azul); } .ds-btn-acao:hover { background: var(--color-tinta); border-color: var(--color-tinta); } .ds-btn-totem { min-height: 64px; padding: 0 24px; font-size: 1.25rem; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "A Sinalização do Pátio",
+    "overview": "A tela é a sinalização de segurança do pátio da balança. Cada estado tem palavra, forma e cor fixas, como uma placa NR-26 ou ISO 7010. O operador lê o modo, a frescura dos dados e o que pede ação antes de ler qualquer tabela.\n\nO chão é concreto claro. A tinta é quase preta. O cabeçalho é asfalto, com a faixa amarela de demarcação embaixo. A superfície é plana: fios de 1px separam as áreas, sem sombra e sem canto arredondado. A densidade serve a quem opera o dia todo. O totem usa a mesma linguagem, maior e mais simples.\n\nO sistema recusa o painel cinza com um acento só e os cartões com sombra, onde falha e sucesso parecem iguais.",
+    "keyCharacteristics": [
+      "Cor só com função. Nenhuma cor decorativa.",
+      "Estado sempre em palavra e forma juntas, nunca só por cor.",
+      "Cabeçalho asfalto com faixa amarela de 4px.",
+      "Fios de 1px, sem sombra, cantos retos.",
+      "Fonte do sistema com números tabulares.",
+      "Faixa zebrada só no bloqueio de ações."
+    ],
+    "rules": [
+      {
+        "name": "The Cor Com Função Rule",
+        "body": "Toda cor fora dos neutros diz um estado. Se a cor não responde \"o que isto significa?\", ela não entra.",
+        "section": "colors"
+      },
+      {
+        "name": "The Azul Reservado Rule",
+        "body": "Azul é ação disponível agora, e o modo SIMULADO. Não use azul para destaque, título ou enfeite.",
+        "section": "colors"
+      },
+      {
+        "name": "The REAL Mais Forte Rule",
+        "body": "REAL é a placa de maior peso na tela: campo vermelho cheio com triângulo. SIMULADO é só contorno azul. Desconhecido é campo amarelo. Na dúvida, a tela mostra desconhecido, nunca SIMULADO.",
+        "section": "colors"
+      },
+      {
+        "name": "The Número Tabular Rule",
+        "body": "`tabular-nums` vale na raiz. Peso, hora e contagem alinham em coluna.",
+        "section": "typography"
+      },
+      {
+        "name": "The Caixa Alta É Estado Rule",
+        "body": "Caixa alta só na palavra de estado dentro de uma placa. Nunca em rótulo de seção ou sobre título.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sem Sombra Rule",
+        "body": "Nenhuma superfície flutua. Separação é fio, tom ou faixa.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Palavra E Forma Rule",
+        "body": "Todo estado leva a palavra e a forma ISO 7010 juntas. A cor reforça, nunca carrega sozinha.",
+        "section": "shapes"
+      },
+      {
+        "name": "The Zebrada É Bloqueio Rule",
+        "body": "A faixa zebrada aparece só sobre a área de ações bloqueada por tela desatualizada. Em nenhum outro lugar.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do dar a todo estado palavra e forma ISO 7010 juntas.",
+      "Do usar azul só na ação disponível agora e no modo SIMULADO.",
+      "Do mostrar a placa de modo em toda tela interna, com REAL no campo vermelho cheio.",
+      "Do separar áreas com fio de 1px na cor fio.",
+      "Do manter botões bloqueados visíveis e desabilitados, sob a faixa zebrada.",
+      "Do dar 64px de altura mínima a todo alvo de toque do totem."
+    ],
+    "donts": [
+      "Don't usar sombra em nenhuma superfície.",
+      "Don't arredondar cantos.",
+      "Don't indicar estado só por cor.",
+      "Don't usar cor sem função, nem azul como destaque.",
+      "Don't usar a faixa zebrada fora do bloqueio de ações.",
+      "Don't pôr caixa alta em rótulo de seção ou sobre título."
+    ]
+  }
+}

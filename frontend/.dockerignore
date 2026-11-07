@@ -1,0 +1,10 @@
+# Fora do contexto: dependências e build locais, caches e qualquer segredo (.env).
+node_modules/
+dist/
+.impeccable/
+.env
+.env.*
+*.log
+coverage/
+Dockerfile
+.dockerignore

@@ -8,8 +8,17 @@ name = "pesagem"
 version = "0.1.0"
 description = "Backend do sistema de automação de pesagem rodoviária com LPR (TCC — IFRS Veranópolis)"
 requires-python = ">=3.12"
-# Nenhuma dependência de execução no esqueleto (spec 001 §3, CA-007).
-dependencies = []
+# Persistência (ADR-0006, spec 014). Mesmo critério de versão da spec 001 §8.
+dependencies = [
+    "sqlalchemy==2.1.6",
+    "psycopg[binary]==3.3.6",
+    "alembic==1.20.1",
+    # API (BE-706 em diante). fastapi 0.162.0 (2026-10-23), uvicorn 0.54.0
+    # (2026-09-25), pydantic 2.14.1 (2026-10-11, usado direto nos esquemas).
+    "fastapi==0.162.0",
+    "uvicorn==0.54.0",
+    "pydantic==2.14.1",
+]
 
 [dependency-groups]
 # Versões fixadas: as instaladas e verificadas na BE-102; escolhidas como a
@@ -19,6 +28,8 @@ dev = [
     "pytest-cov==7.1.0",
     "ruff==0.17.0",
     "mypy==2.4.0",
+    # Cliente HTTP do TestClient do FastAPI, só nos testes (0.28.1, 2024-12-06).
+    "httpx==0.28.1",
 ]
 # LPR (spec 005; aprovadas pelo autor em 2026-10-30, BE-402). Mesmo critério
 # de versão. OpenCV 4.x e não 5.0: o EasyOCR 1.7.2 (2024) não foi testado com
@@ -38,6 +49,11 @@ pythonpath = ["src"]
 # da execução padrão e roda só com `pytest -m avaliacao`.
 addopts = ["--strict-markers", "-m", "not avaliacao"]
 markers = ["avaliacao: avaliação do LPR com o acervo real (spec 005 §6.4)"]
+
+[tool.alembic]
+# Migrações escritas à mão em SQL; única fonte do esquema (ADR-0006).
+script_location = "%(here)s/src/pesagem/persistencia/migracoes"
+file_template = "%%(rev)s_%%(slug)s"
 
 [tool.coverage.run]
 source = ["src/pesagem"]

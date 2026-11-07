@@ -56,6 +56,7 @@ Status de ADR: `Proposta` → `Aceita` → `Substituída`.
 | 026 | [docker-frontend](features/026-docker-frontend/spec.md) | Frontend | Implementada (delegada, 2026-11-07; revisão final pendente) | FE-401 |
 | 027 | [compose](features/027-compose/spec.md) | Integração | Implementada (delegada, 2026-11-07; revisão final pendente) | INT-001 |
 | 028 | [ponta-a-ponta](features/028-ponta-a-ponta/spec.md) | Integração | Implementada (delegada, 2026-11-07; revisão final pendente) | INT-002 |
+| 029 | [dispositivos-serial](features/029-dispositivos-serial/spec.md) | Backend | Implementada (aprovada pelo autor em 2026-11-07) | BE-303, BE-304 |
 
 ## 3. ADRs (`docs/decisoes/`)
 
@@ -76,7 +77,7 @@ Perguntas do `AMBIENTE.md` §17 sem resposta completa, apresentadas ao autor na 
 
 | ID | Tema | Bloqueia |
 |---|---|---|
-| Q-01 | Equipamentos reais e protocolos (parcial, spec 004) | `BalancaSerial` e `CancelaSerial` (modo `REAL`) |
+| Q-01 | Equipamentos reais e protocolos (parcial, specs 004 e 029) | Protocolo de modelo da balança e `CancelaSerial` (modo `REAL`) |
 | Q-07 | SO e equipamento de execução; GPU | BE-801, INT-001 |
 | Q-06 | Câmeras: tipo, resolução e uso das câmeras da frente e de trás (parcial, 2026-11-04) | Fontes de câmera real; BE-601 |
 | Q-08 | Imagens: adequação à LGPD (parcial, 2026-11-04; RN-022) | BE-502 |

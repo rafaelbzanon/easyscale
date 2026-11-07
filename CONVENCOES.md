@@ -34,7 +34,7 @@ Este arquivo define **como nomear** e **onde colocar** cada coisa no repositóri
 
 > Nada abaixo existe até ser criado em uma tarefa ligada a spec aprovada (`AGENTS.md` §5). **Não crie pastas vazias "para o futuro"**: crie cada pasta na tarefa que precisar dela.
 >
-> **Já existem (2026-11-04):** os documentos da raiz, `specs/`, `docs/decisoes/`, `docs/artigo/`, `docs/modelo-dados/` e, em `backend/`, `pyproject.toml`, `src/pesagem/dominio/` (sem `autorizacao/`), `src/pesagem/lpr/`, `src/pesagem/dispositivos/` (sem `serial.py` e `protocolos/`), `tests/unitarios/` e `tests/avaliacao/`. Desde 2026-11-07: `src/pesagem/config.py`, `src/pesagem/persistencia/` e `tests/integracao/` (spec 014).
+> **Já existem (2026-11-04):** os documentos da raiz, `specs/`, `docs/decisoes/`, `docs/artigo/`, `docs/modelo-dados/` e, em `backend/`, `pyproject.toml`, `src/pesagem/dominio/` (sem `autorizacao/`), `src/pesagem/lpr/`, `src/pesagem/dispositivos/` (sem `cancela/serial.py`), `tests/unitarios/` e `tests/avaliacao/`. Desde 2026-11-07: `dispositivos/balanca/serial.py`, `dispositivos/balanca/protocolos/__init__.py` (registro vazio) e `docs/equipamentos/README.md` (spec 029); `src/pesagem/config.py`, `src/pesagem/persistencia/` e `tests/integracao/` (spec 014).
 
 ```
 /
@@ -42,6 +42,7 @@ Este arquivo define **como nomear** e **onde colocar** cada coisa no repositóri
 ├── AMBIENTE.md
 ├── CONVENCOES.md
 ├── README.md                      # instalação, configuração, execução [ARTIGO]
+├── PENDENCIAS.md                  # o que falta o autor decidir ou fazer
 ├── LICENSE                        # [PENDENTE] D-12 — arquivo MIT já existe, sem decisão registrada
 ├── compose.yaml                   # orquestração Docker (quando aprovado)
 ├── .env.exemplo                   # variáveis de ambiente sem segredos
@@ -117,13 +118,13 @@ Este arquivo define **como nomear** e **onde colocar** cada coisa no repositóri
 │   │       │   │   ├── interface.py
 │   │       │   │   ├── tentativas.py    # política de segunda tentativa (spec 004 §6.2)
 │   │       │   │   ├── simulada.py
-│   │       │   │   ├── serial.py        # bloqueado até a Q-01
-│   │       │   │   └── protocolos/      # um arquivo por modelo, parsing puro, sem I/O (RF-030; Q-01)
+│   │       │   │   ├── serial.py        # transporte PySerial (spec 029)
+│   │       │   │   └── protocolos/      # registro em __init__.py, vazio; um arquivo por modelo, parsing puro (RF-030; Q-01)
 │   │       │   └── cancela/
 │   │       │       ├── interface.py
 │   │       │       ├── tentativas.py
 │   │       │       ├── simulada.py
-│   │       │       └── serial.py        # bloqueado até a Q-01
+│   │       │       └── serial.py        # bloqueado até a Q-01 (spec 029 P-1)
 │   │       └── persistencia/      # SQLAlchemy Core + psycopg 3 (ADR-0006)
 │   │           ├── migracoes/     # Alembic: env.py e versions/NNNN_descricao.py (ADR-0006)
 │   │           └── repositorios/  # um arquivo por agregado: agendamento, pesagem, cadastro, faixa_horario, usuario, acesso, ...

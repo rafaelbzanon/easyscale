@@ -251,6 +251,8 @@ python3 -m venv .venv                 # Python >= 3.12
 .venv/bin/pytest -m avaliacao -s
 ```
 
+`pyserial==3.5` está nas dependências de execução desde 2026-11-07 (spec 029): quem já tem o venv precisa reinstalar.
+
 **Persistência** — executados em 2026-11-07 (BE-503, spec 014), a partir de `backend/`:
 
 ```sh
@@ -363,7 +365,7 @@ Só o `frontend` publica porta (127.0.0.1:8443); banco e backend ficam na rede d
 | Banco | parâmetros de conexão | PostgreSQL (ADR-0001). |
 | Câmeras | origem da imagem (câmera de rede, dispositivo local, arquivo de vídeo, pasta de imagens), taxa de captura | Fonte substituível para testes.  Em uso (BE-703): `PESAGEM_CAMERA_MODO` (ausente = `SIMULADO`; `REAL` impede a partida, Q-06), `_INTERVALO_ANALISE_MS`, `_IDADE_MAXIMA_IMAGEM_MS`. |
 | LPR | limiar de confiança, idiomas/modelos do OCR, parâmetros de pré-processamento, local de cache dos modelos | Valores de limiar **[PENDENTE]**: definir empiricamente com dados de teste.  Em uso: `PESAGEM_LPR_LIMIAR_CONFIANCA`. Pasta e idiomas dos modelos só quando houver câmera real (proposta do Keel: `PESAGEM_LPR_PASTA_MODELOS`, `PESAGEM_LPR_IDIOMAS`). |
-| Balança | modo (real/simulado), porta, parâmetros seriais (taxa, bits, paridade, parada), timeout, parâmetros de estabilidade | Valores e protocolo dependem do equipamento (**[PENDENTE]**).  Em uso (BE-703): `PESAGEM_BALANCA_MODO` (ausente = `SIMULADO`; `REAL` impede a partida, Q-01), `_PESO_MINIMO_KG`, `_PESO_MAXIMO_KG`, `_QUANTIDADE_LEITURAS_ESTAVEIS`, `_VARIACAO_MAXIMA_KG`, `_JANELA_ESTABILIDADE_MS`, `_INTERVALO_LEITURA_MS`; `PESAGEM_PESAGEM_TOLERANCIA_MOVIMENTACAO_KG` (padrão 20, valor do autor, RN-006). |
+| Balança | modo (real/simulado), porta, parâmetros seriais (taxa, bits, paridade, parada), timeout, parâmetros de estabilidade | Valores e protocolo dependem do equipamento (**[PENDENTE]**).  Em uso (BE-703): `PESAGEM_BALANCA_MODO` (ausente = `SIMULADO`; `REAL` impede a partida enquanto não houver protocolo registrado, spec 029), `_PESO_MINIMO_KG`, `_PESO_MAXIMO_KG`, `_QUANTIDADE_LEITURAS_ESTAVEIS`, `_VARIACAO_MAXIMA_KG`, `_JANELA_ESTABILIDADE_MS`, `_INTERVALO_LEITURA_MS`; `PESAGEM_PESAGEM_TOLERANCIA_MOVIMENTACAO_KG` (padrão 20, valor do autor, RN-006); só com `PESAGEM_BALANCA_MODO=REAL` (spec 029 §6.3, sem valor padrão): `PESAGEM_BALANCA_PROTOCOLO` (nome no registro de protocolos, hoje vazio), `_PORTA`, `_BAUD_RATE` (valores de `serial.Serial.BAUDRATES`), `_PARIDADE` (`N`, `E`, `O`, `M`, `S`), `_DATA_BITS` (5 a 8), `_STOP_BITS` (`1`, `1.5`, `2`), `_TIMEOUT_MS`, `_INTERVALO_TENTATIVA_MS`. |
 | Cancelas | modo (real/simulado), porta/canal, timeout, política de retentativa | Idem.  Em uso: `PESAGEM_CANCELA_MODO` (ausente = `SIMULADO`; `REAL` impede a partida). |
 | Segurança | `PESAGEM_SEGURANCA_ORIGENS_PERMITIDAS`, `_SESSAO_TEMPO_SEM_USO_S`, `_LOGIN_TENTATIVAS_MAXIMAS`, `_LOGIN_BLOQUEIO_S`, `_AUTOATENDIMENTO_REDES` (sem configuração, a rota fica desligada), `_AUTOATENDIMENTO_TENTATIVAS_MAXIMAS`, `_AUTOATENDIMENTO_BLOQUEIO_S` | ADR-0004; definidas nas specs 012 e 013. |
 | Tempo real | `PESAGEM_TEMPO_REAL_HEARTBEAT_MS`, `_LIMITE_SEM_HEARTBEAT_MS`, `_INTERVALO_PESO_MS`, `_INTERVALO_IMAGEM_MS`; análise: `PESAGEM_CAMERA_INTERVALO_ANALISE_MS`, `PESAGEM_CAMERA_IDADE_MAXIMA_IMAGEM_MS`; balança: `PESAGEM_BALANCA_INTERVALO_LEITURA_MS` | ADR-0005; definidas nas specs 009, 011 e 015, sem valor padrão. |
@@ -444,7 +446,7 @@ Já informados pelo autor: duas cancelas, uma antes e outra depois da balança (
 
 ### 11.3 Integração
 
-Interfaces e simuladores estão implementados (spec 004). `BalancaSerial` e `CancelaSerial` estão bloqueadas pela Q-01, e o modo `REAL` fica indisponível até lá.
+Interfaces e simuladores estão implementados (spec 004). A `BalancaSerial` existe (spec 029, PySerial 3.5), mas o registro de protocolos está vazio, então o modo `REAL` da balança é recusado na partida até existir um protocolo com quadros reais (roteiro em `docs/equipamentos/README.md`). `CancelaSerial` continua bloqueada pela Q-01 e pela spec 029 P-1.
 
 - Módulo de dispositivos com contrato abstrato (conceito): *ler peso*, *comandar cancela*, *consultar estado/saúde*; implementações **real** (PySerial) e **simulada** (ver seção 14.2).
 - Parsing do quadro da balança isolado em componente puro (sem I/O), testado com quadros de exemplo reais assim que existirem.

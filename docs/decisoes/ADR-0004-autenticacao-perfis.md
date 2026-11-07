@@ -81,6 +81,7 @@ O `AUDITOR` só consulta (Q-11), então não recebe `CRIAR_AGENDAMENTO`.
 | `CONSULTAR_CADASTROS` | Consultar os cadastros; só com `GERENCIAR_CADASTROS` o CPF vem completo (spec 007) | ✓ | ✓ | — |
 | `GERENCIAR_CADASTROS` | Veículos, motoristas, transportadoras, produtos, tipos de veículo e faixas (RF-028) | ✓ | — | — |
 | `GERENCIAR_USUARIOS` | Criar e desativar usuários, trocar senha (RF-032) | ✓ | — | — |
+| `CONTROLAR_SIMULADORES` | Trocar cenários e simular chegadas, só com todos os dispositivos em `SIMULADO` (spec 011 §6.4; acrescentada em 2026-11-07, aprovação delegada) | ✓ | — | — |
 
 O `AUDITOR` acompanha os processos e vê as imagens das decisões, mas não as imagens em tempo real (Q-08, 2026-11-04).
 

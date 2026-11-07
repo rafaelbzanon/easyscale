@@ -44,3 +44,19 @@ def test_codificar_jpeg_devolve_bytes_ou_none() -> None:
     conteudo = codificar_jpeg(imagem_sintetica())
     assert conteudo is not None and conteudo[:2] == b"\xff\xd8"
     assert codificar_jpeg(np.zeros((0, 0, 3), dtype=np.uint8)) is None
+
+
+def test_imagem_da_leitura_tem_a_placa_dentro_da_roi() -> None:
+    """A ROI fica dentro da cena e cobre a placa desenhada (diagnóstico, spec 011)."""
+    reconhecedor = ReconhecedorPlacaSimulado(lambda: AGORA)
+    reconhecedor.enfileirar([TextoOcr("RTX4B72", 0.97)])
+    leitura = asyncio.run(reconhecedor.reconhecer())
+    assert isinstance(leitura, LeituraPlaca)
+    (lida,) = leitura.leituras
+    altura, largura = leitura.pixels.shape[:2]
+    roi = lida.roi
+    assert 0 <= roi.x and roi.x + roi.largura <= largura
+    assert 0 <= roi.y and roi.y + roi.altura <= altura
+    recorte = leitura.pixels[roi.y : roi.y + roi.altura, roi.x : roi.x + roi.largura]
+    assert recorte.mean() > leitura.pixels.mean()  # a placa clara se destaca do fundo
+    assert codificar_jpeg(leitura.pixels) is not None

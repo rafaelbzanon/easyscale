@@ -19,23 +19,23 @@ Complementa o `AGENTS.md` (regras de trabalho). **O estado real do repositório 
 
 ### 0.2 Estado atual
 
-O desenvolvimento **está em andamento** (atualizado em 2026-11-04). O andamento fica em `specs/tarefas-iniciais.md`, e o estado de cada spec e ADR em `specs/README.md`.
+O desenvolvimento **está em andamento** (atualizado em 2026-11-08). O andamento fica em `specs/tarefas-iniciais.md`, e o estado de cada spec e ADR em `specs/README.md`.
 
 **Já existem:**
 
 - `backend/` — regras de domínio, camada de dispositivos com simuladores, pipeline de LPR e testes automatizados, sem acesso a hardware real.
-- Contratos de API aprovados, ainda sem implementação: `specs/features/`, a partir da spec 007.
+- Contratos de API aprovados e implementados: `specs/features/`, specs 007 a 013.
 - Persistência (spec 014): `backend/src/pesagem/persistencia/` com a migração Alembic `0001`, que é o esquema vigente. O `docs/modelo-dados/schema.sql` virou histórico.
 - `docs/decisoes/` — ADRs (ver `specs/README.md`).
 - `specs/` — índice, glossário e lista de tarefas.
 
-Desde 2026-11-07: API HTTP (specs 007 a 013), orquestração (spec 015), frontend (specs 016 a 024, em construção) e Docker (`backend/Dockerfile`, `frontend/Dockerfile`, `compose.yaml`; specs 025 a 027). As demais descrições de estrutura neste documento continuam **[PROPOSTA]** enquanto não forem criadas.
+Desde 2026-11-07: API HTTP (specs 007 a 013), orquestração (spec 015), frontend (specs 016 a 024) e Docker (`backend/Dockerfile`, `frontend/Dockerfile`, `compose.yaml`; specs 025 a 027). As demais descrições de estrutura neste documento continuam **[PROPOSTA]** enquanto não forem criadas.
 
 ### 0.3 Divergências entre fontes (a resolver/registrar)
 
 | Tema | Artigo | Definição do autor | Tratamento |
 |---|---|---|---|
-| Frontend | HTML + Tailwind CSS + JavaScript | TypeScript + Tailwind CSS | Prevalece **TypeScript + Tailwind**. Framework **[PENDENTE]**. |
+| Frontend | HTML + Tailwind CSS + JavaScript | TypeScript + Tailwind CSS | Prevalece **TypeScript + Tailwind**. Framework: React + Vite (ADR-0007). |
 | Interface | Cadastros de veículos, motoristas, transportadoras e agendamentos; tela operacional | Acrescenta visualização de câmeras, ROIs e interpretações do algoritmo (diagnóstico) | Ambos entram no escopo; o segundo **não consta no artigo** e foi formalizado no RF-022 e no RF-023. |
 | Agendamento | O artigo lista "criação de agendamentos" como função do sistema | O agendamento é **manual**, por usuário com permissão ou pelo motorista no autoatendimento (RF-033), e não será automatizado | O sistema oferece o meio de criar/gerir agendamentos; **nada no agendamento é automatizado**. A automação cobre as etapas seguintes. |
 | Persistência de "documentos" | O artigo não detalha documentos | O autor lista "documentos" entre as necessidades | O significado de "documentos" é **[PENDENTE]** (Q-03). |
@@ -166,7 +166,7 @@ O artigo prevê organização **modular**: interface web, API backend, módulo d
 - **Frontend**: apresentar estado e evidências; coletar ações do operador/administrador. **Não contém lógica de decisão de segurança** — decisões de autorização e acionamento são sempre do backend.
 - **API**: borda HTTP; validação de entrada; autenticação/autorização (ADR-0004); sem lógica de negócio pesada.
 - **Regras de negócio / orquestração**: decide se um veículo é autorizado, qual é a etapa atual, quando aceitar um peso, quando emitir comando à cancela; mantém a máquina de estados da operação; independe de HTTP, serial, câmera e banco para ser testável.
-- **Persistência**: armazenar e recuperar cadastros, agendamentos, pesagens, eventos e histórico (ver seção 12). Isolada atrás de uma fronteira clara (detalhes **[PENDENTE]**, dependem do ORM, D-02).
+- **Persistência**: armazenar e recuperar cadastros, agendamentos, pesagens, eventos e histórico (ver seção 12). Isolada atrás de uma fronteira clara (SQLAlchemy 2 Core + Alembic, ADR-0006; spec 014).
 - **Visão computacional (LPR)**: dada uma fonte de imagem, produzir resultado estruturado (placa candidata, confiança, ROI, imagem de evidência). Não decide autorização; apenas informa.
 - **Dispositivos (serial)**: expor operações abstratas (ler peso, comandar cancela, consultar estado quando o equipamento permitir) com implementação **real (PySerial)** e **simulada**, selecionável por configuração.
 
@@ -188,7 +188,7 @@ O artigo prevê organização **modular**: interface web, API backend, módulo d
 
 ## 5. Organização de diretórios **[PROPOSTA]**
 
-> Visão inicial, anterior ao código. A organização vigente é a do `CONVENCOES.md`, e hoje só as pastas `backend/`, `docs/` e `specs/` desta lista existem. Nomes dependem das decisões pendentes (framework do frontend, ORM).
+> Visão inicial, anterior ao código. A organização vigente é a do `CONVENCOES.md`. Hoje existem `backend/`, `frontend/`, `docs/` e `specs/`; os arquivos Docker ficam na raiz e em cada pasta (`compose.yaml`, `Caddyfile`, `backend/Dockerfile`, `frontend/Dockerfile`).
 
 ```
 /
@@ -200,10 +200,10 @@ O artigo prevê organização **modular**: interface web, API backend, módulo d
 │   └── decisoes/              # ADRs
 ├── backend/                   # Python + FastAPI
 │   └── ...                    # módulos: api, domínio/regras, visão (LPR), dispositivos, persistência
-├── frontend/                  # TypeScript + Tailwind (framework pendente)
+├── frontend/                  # TypeScript + Tailwind, React + Vite (ADR-0007)
 ├── simuladores/               # (opcional) simuladores de balança/cancela e fontes de imagem
 ├── dados-teste/               # só o README: acervo e gabarito ficam fora do repositório (spec 005 §12.1)
-└── docker/ ou raiz            # arquivos Docker/Compose (a definir quando forem criados)
+└── (raiz)                     # compose.yaml e Caddyfile (spec 027)
 ```
 
 Já decididos no `CONVENCOES.md` §2: repositório único e local de simuladores e dados de teste. O acervo real fica fora do repositório (spec 005 §12.1). Falta: autorização e restrições de publicação do acervo (Q-09).
@@ -214,13 +214,13 @@ Já decididos no `CONVENCOES.md` §2: repositório único e local de simuladores
 
 **[PROPOSTA]** — a validar:
 
-- Desenvolvimento e execução via **Docker** **[DEFINIDO]**, preferindo orquestração por Compose para subir backend, frontend e banco juntos, com um comando documentado no README (comandos concretos de Docker serão registrados aqui **depois** de existirem — hoje não há nenhum).
+- Desenvolvimento e execução via **Docker** **[DEFINIDO]**, preferindo orquestração por Compose para subir backend, frontend e banco juntos, com um comando documentado no README (comandos concretos de Docker na §6.1).
 - O ambiente deve ser **reproduzível** (objetivo open-source **[ARTIGO]**): um terceiro deve conseguir clonar e executar o protótipo em modo **simulado** sem hardware.
 - **Modo simulado como padrão seguro**; hardware real só com configuração explícita.
 - Necessidades já previsíveis:
   - Runtime Python e dependências de visão (OpenCV, EasyOCR e o framework de aprendizado profundo que o EasyOCR requer). Imagens Docker com essas dependências tendem a ser **grandes**; o tempo de build e o tamanho devem ser considerados.
   - EasyOCR faz download de modelos de reconhecimento; prever **volume/cache persistente** para os modelos; na operação, nada é baixado (D-08).
-  - Node/TypeScript para o frontend (ferramenta de build depende do framework — **[PENDENTE]**).
+  - Node/TypeScript para o frontend, com Vite como ferramenta de build (ADR-0007).
   - Uso de **GPU**: não definido; assumir **CPU** até que se decida o contrário **[PENDENTE]** (D-09).
   - Acesso a portas seriais reais e a câmeras (ver seção 7.3).
 
@@ -231,6 +231,9 @@ Já decididos no `CONVENCOES.md` §2: repositório único e local de simuladores
 ```sh
 python3 -m venv .venv                 # Python >= 3.12
 .venv/bin/pip install --group dev     # requer pip >= 25.1 dentro do venv
+# Dependências de execução (o pacote não é instalado, spec 001); sem elas,
+# os testes de API, persistência e serial falham na coleta. Verificado em 2026-11-08.
+.venv/bin/python -c "import tomllib; print(*tomllib.load(open('pyproject.toml','rb'))['project']['dependencies'], sep='\n')" | .venv/bin/pip install -r /dev/stdin
 .venv/bin/pytest                      # testes
 .venv/bin/pytest --cov                # testes + cobertura (sem meta mínima)
 .venv/bin/ruff check                  # lint
@@ -291,6 +294,8 @@ Proxy do Vite e cookie `Secure` em `http://localhost` verificados contra o backe
 ```
 
 Verificação final em 2026-11-07 (Maestro): backend `pytest` 972 aprovados e 1 desmarcado (avaliação do LPR), `ruff` e `mypy` limpos; frontend `npm test` 174 aprovados, lint, typecheck, format e build sem erro. Validação pelo navegador (Playwright, compose isolado) dos 11 grupos de casos de uso, sem falha funcional.
+
+Verificação em 2026-11-08 (Python 3.14.9, Node 26.13.0): backend com 1002 testes coletados, 882 aprovados e 120 com erro, todos de integração e ponta a ponta, porque o Docker do host não conseguiu criar a rede do contêiner do banco (kernel em execução sem os módulos instalados; problema da máquina, não do código); `ruff` e `mypy` limpos. Frontend `npm test` 176 aprovados, lint, typecheck, format e build sem erro.
 
 **Docker do backend** — executados em 2026-11-07 (BE-801, spec 025), a partir de `backend/`:
 
@@ -528,7 +533,7 @@ Pontos levantados antes do ADR, que seguem úteis para a execução real:
 
 ## 14. Estratégia de testes **[PROPOSTA]**
 
-Backend: pytest (ADR-0003); hoje só existem testes unitários e a avaliação do LPR, fora da execução padrão. Frontend: Vitest + Testing Library, ESLint, Prettier e `tsc` estrito (ADR-0008). Princípio: **todo teste automatizado roda sem hardware real**.
+Backend: pytest (ADR-0003); há testes unitários, de integração (`tests/integracao`) e ponta a ponta (`tests/ponta_a_ponta`), esses dois com PostgreSQL em contêiner, e a avaliação do LPR, fora da execução padrão. Frontend: Vitest + Testing Library, ESLint, Prettier e `tsc` estrito (ADR-0008). Princípio: **todo teste automatizado roda sem hardware real**.
 
 ### 14.1 Níveis
 

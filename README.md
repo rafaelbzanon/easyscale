@@ -44,18 +44,37 @@ A interface também mostra a operação em tempo real, o histórico, as imagens 
 
 O andamento detalhado fica em [`specs/tarefas-iniciais.md`](specs/tarefas-iniciais.md).
 
-## Requisitos
+## Instalação
 
-- Para rodar: Docker e Docker Compose. Testado com Compose 5.6.0.
-- Para desenvolver: Python 3.12 ou mais novo e Node 22.22 ou mais novo.
-- Para a demonstração abaixo: `curl` e `jq`.
+Há dois caminhos. Para usar ou demonstrar o sistema, suba tudo pelo Docker ([Como rodar em modo simulado](#como-rodar-em-modo-simulado)). Para mexer no código, prepare o ambiente na máquina ([Ambiente de desenvolvimento local](#ambiente-de-desenvolvimento-local)). Os dois rodam só em modo `SIMULADO` e não precisam de hardware.
+
+### Pré-requisitos
+
+| Para | Precisa de | Versões já usadas |
+|---|---|---|
+| Rodar pelo Docker | Docker e Docker Compose | Docker 29.9, Compose 5.6 e 5.7 |
+| Desenvolver o backend | Python 3.12 ou mais novo, com `venv` | 3.14.7 e 3.14.9 |
+| Desenvolver o frontend | Node 22.22.2 ou mais novo, com npm | Node 22.22 e 26.13 |
+| Testes de banco e banco de desenvolvimento | Docker (sobe o PostgreSQL) | — |
+| Roteiro de demonstração | `curl` e `jq` | — |
+
+No Linux, o Docker acessa portas seriais sem complicação. No Windows e no macOS esse acesso é limitado (`AMBIENTE.md`, R-05), mas isso só importa para equipamento real, que ainda não é suportado.
+
+### Obter o código
+
+```sh
+git clone https://github.com/rafaelbzanon/easyscale.git
+cd easyscale
+cp .env.exemplo .env    # troque PESAGEM_BANCO_SENHA antes de subir o banco
+```
+
+O `.env` serve aos dois caminhos e não vai para o git. Veja a seção [Configuração](#configuração).
 
 ## Como rodar em modo simulado
 
-Na raiz do repositório:
+Na raiz do repositório, com o `.env` criado:
 
 ```sh
-cp .env.exemplo .env                  # troque PESAGEM_BANCO_SENHA
 docker compose up -d --build --wait   # banco, migração, backend e frontend
 ```
 
@@ -138,13 +157,87 @@ No fim, o roteiro mostra a pesagem finalizada com o peso líquido de 30000 kg. O
 
 Para ver as falhas, troque o cenário antes do passo correspondente. A balança aceita `SEM_RESPOSTA`, `INSTAVEL`, `QUADRO_CORROMPIDO` e `DESCONECTADA`. As cancelas aceitam `FALHA`, `NAO_MOVE` e `SENSOR_SEM_RESPOSTA`. A posição aceita `INCONCLUSIVA`. Uma placa com confiança baixa, uma placa sem agendamento ou uma lista vazia de textos também mostram as recusas. Todos os cenários estão na spec 011, seção 5.5. Nas falhas, o sistema não autoriza, não grava peso e espera uma ação do operador.
 
-## Desenvolvimento local
+## Ambiente de desenvolvimento local
 
-Os comandos de cada parte (ambiente virtual do backend, migrações, API, frontend, banco de desenvolvimento) estão em [`AMBIENTE.md`](AMBIENTE.md), seção 6.1. As regras de organização do código estão em [`CONVENCOES.md`](CONVENCOES.md).
+Aqui o backend e o frontend rodam na máquina, e só o banco fica no Docker. A referência completa dos comandos está no [`AMBIENTE.md`](AMBIENTE.md), seção 6.1, e as regras de organização do código no [`CONVENCOES.md`](CONVENCOES.md).
+
+### 1. Backend: ambiente virtual e dependências
+
+A partir de `backend/`:
+
+```sh
+python3 -m venv .venv
+.venv/bin/pip install --group dev    # ferramentas de teste e lint; exige pip 25.1 ou mais novo no venv
+
+# Dependências de execução. O pacote não é instalado (spec 001); sem elas,
+# a API e boa parte dos testes falham com ModuleNotFoundError.
+.venv/bin/python -c "import tomllib; print(*tomllib.load(open('pyproject.toml','rb'))['project']['dependencies'], sep='\n')" | .venv/bin/pip install -r /dev/stdin
+
+# Visão computacional. O torch só para CPU vem antes, do índice do PyTorch;
+# senão o pip baixa a versão com CUDA, muito maior.
+.venv/bin/pip install --index-url https://download.pytorch.org/whl/cpu torch==2.14.1 torchvision==0.29.1
+.venv/bin/pip install --group lpr
+```
+
+O grupo `lpr` é obrigatório mesmo em modo simulado, porque a câmera simulada usa o OpenCV. Os modelos do EasyOCR só são necessários para a avaliação com imagens reais (`AMBIENTE.md` §6.1).
+
+### 2. Banco de desenvolvimento
+
+Na raiz, com o `.env` criado:
+
+```sh
+docker compose --profile dev up -d db-dev    # PostgreSQL em 127.0.0.1:5432, volume próprio
+```
+
+Se a porta 5432 da máquina estiver ocupada, defina `PESAGEM_BANCO_PORTA_DEV` e `PESAGEM_BANCO_PORTA` com outra porta no `.env`.
+
+### 3. Backend: variáveis, migrações e primeiro administrador
+
+O backend lê a configuração do ambiente. No mesmo terminal em que ele vai rodar, a partir de `backend/`:
+
+```sh
+set -a; . ../.env; set +a                 # exporta todas as variáveis do .env
+export PESAGEM_BANCO_HOST=127.0.0.1       # no .env o host é o serviço `db` do compose
+export PESAGEM_SEGURANCA_ORIGENS_PERMITIDAS=http://localhost:5173   # origem do npm run dev
+
+PYTHONPATH=src .venv/bin/alembic upgrade head
+PYTHONPATH=src .venv/bin/python -m pesagem.api.criar_administrador   # pede nome, login e senha
+PYTHONPATH=src .venv/bin/uvicorn --factory pesagem.main:criar_aplicacao --host 127.0.0.1 --port 8000
+```
+
+Rode o backend em um processo só, sem `--workers` (ADR-0002). Se faltar uma variável obrigatória, a partida para com `ErroConfiguracao: variável obrigatória ausente: <NOME>`.
+
+### 4. Frontend
+
+Em outro terminal, a partir de `frontend/`:
+
+```sh
+npm ci                                                        # instala pelo package-lock.json
+PESAGEM_GERAL_URL_BACKEND=http://127.0.0.1:8000 npm run dev   # repassa /api ao backend
+```
+
+Abra o endereço que o Vite mostrar (normalmente `http://localhost:5173`) e entre com o administrador criado no passo 3. Se o Vite usar outra porta, ajuste `PESAGEM_SEGURANCA_ORIGENS_PERMITIDAS` e reinicie o backend.
+
+### 5. Conferir a instalação
+
+Rode os testes da seção [Testes](#testes). Com tudo instalado, nenhum deve falhar na coleta.
+
+Para desligar o banco de desenvolvimento: `docker compose --profile dev down`. O volume `pesagem-dados-db-dev` continua; `-v` apaga.
+
+### Problemas comuns
+
+| Sintoma | Causa provável | O que fazer |
+|---|---|---|
+| `ModuleNotFoundError: No module named 'fastapi'` (ou `sqlalchemy`, `alembic`, `serial`) | Venv sem as dependências de execução | Rode o comando de dependências de execução do passo 1 |
+| `ModuleNotFoundError: No module named 'cv2'` | Falta o grupo `lpr` | Instale o torch para CPU e depois o grupo `lpr` (passo 1) |
+| `ErroConfiguracao: variável obrigatória ausente` | Variáveis não exportadas neste terminal | Repita o `set -a; . ../.env; set +a` do passo 3 |
+| Alembic ou backend: `Is the server running on that host…` | Banco fora do ar ou host errado | Suba o `db-dev` (passo 2) e confira `PESAGEM_BANCO_HOST=127.0.0.1` |
+| Docker: `failed to add the host <=> sandbox pair interfaces: operation not supported` | O kernel foi atualizado e a máquina não foi reiniciada, então faltam os módulos de rede do kernel em execução | Reinicie a máquina |
+| `npm run dev` para com `Defina PESAGEM_GERAL_URL_BACKEND…` | Variável do proxy ausente | Passe a variável como no passo 4 |
 
 ## Testes
 
-Backend, a partir de `backend/`, com o ambiente virtual pronto como no AMBIENTE §6.1. Os testes de persistência e de API sobem um PostgreSQL em contêiner, então precisam de Docker e falham sem ele.
+Backend, a partir de `backend/`, com o ambiente virtual pronto como no [passo 1](#1-backend-ambiente-virtual-e-dependências). Os testes de persistência e de API sobem um PostgreSQL em contêiner, então precisam de Docker e falham sem ele.
 
 ```sh
 .venv/bin/pytest                        # tudo

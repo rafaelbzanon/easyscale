@@ -108,6 +108,5 @@ Outras pendências:
 | ID | Pergunta | Origem | Bloqueia |
 |---|---|---|---|
 | — | Licença: `LICENSE` MIT já existe, mas D-12 consta como pendente | C-001 | INT-003 |
-| — | Arquivos vazios `backend/app/*`: exclusão preparada no Git, ainda sem commit | C-001 | — |
 | — | Aceite do autor da BE-102 (spec 001) não registrado | BE-102 | — |
 | — | `glossario.md` continua `Em revisão` desde a C-101 | C-101 | — |

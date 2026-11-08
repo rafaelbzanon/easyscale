@@ -87,6 +87,3 @@ O modo `REAL` não sobe hoje, de propósito. Para mudar isso:
 | Licença (D-12) | O `LICENSE` MIT existe, mas a decisão nunca foi registrada |
 | Glossário | `specs/glossario.md` segue "Em revisão" desde a C-101 |
 | Aceite da BE-102 (spec 001) | Nunca registrado |
-| Commit pendente | Capturas do artigo (`docs/artigo/capturas/`), formatação do peso sem zeros à direita, imagem sintética da placa no simulador, preparação serial (spec 029) e este arquivo |
-| `.maestri/` | Arquivos de coordenação dos agentes, fora do Git; decidir se entram no `.gitignore` ou são apagados |
-| Limpeza local | Contêiner `loom-pesagem-db`, imagens `pesagem-*:teste` e o administrador de teste `admin` no volume `pesagem-dados-db` (`docker compose down -v` apaga) |
